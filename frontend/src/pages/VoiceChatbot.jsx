@@ -1,8 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
-import { Mic, MicOff, Volume2, VolumeX, Settings, MapPin, Languages, Sparkles, Loader2, User, Bot } from 'lucide-react'
+import { Mic, MicOff, Volume2, VolumeX, Settings, MapPin, Languages, Sparkles, Loader2, User, Bot, MessageSquare, History, Zap, RefreshCw } from 'lucide-react'
 import voiceProcessor from '../services/voiceProcessor'
 import aiService from '../services/aiService'
 import textToSpeechService from '../services/textToSpeech'
+import TranscriptDisplay from '../components/TranscriptDisplay'
+import transcriptLogger from '../services/transcriptLogger'
+import googleSpeechService from '../services/googleSpeechService'
 
 const VoiceChatbot = () => {
   const [messages, setMessages] = useState([
@@ -18,11 +21,19 @@ const VoiceChatbot = () => {
   const [input, setInput] = useState('')
   const [isVoiceMode, setIsVoiceMode] = useState(false)
   const [voiceState, setVoiceState] = useState('idle') // idle, listening, processing, speaking, error
-  const [currentTranscription, setCurrentTranscription] = useState('')
+  const [currentTranscription, setCurrentTranscription] = useState(null)
   const [selectedLanguage, setSelectedLanguage] = useState('hi')
   const [location, setLocation] = useState('Delhi')
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isTTSEnabled, setIsTTSEnabled] = useState(true)
+  const [useGoogleSpeech, setUseGoogleSpeech] = useState(false)
+  const [autoDetectLanguage, setAutoDetectLanguage] = useState(true)
+  const [showTranscriptPanel, setShowTranscriptPanel] = useState(false)
+  const [voiceSettings, setVoiceSettings] = useState({
+    rate: 0.9,
+    pitch: 1,
+    volume: 1
+  })
   
   const messagesEndRef = useRef(null)
 
@@ -32,7 +43,11 @@ const VoiceChatbot = () => {
     { code: 'ta', name: 'தமிழ்', englishName: 'Tamil' },
     { code: 'te', name: 'తెలుగు', englishName: 'Telugu' },
     { code: 'ml', name: 'മലയാളം', englishName: 'Malayalam' },
-    { code: 'kn', name: 'ಕನ್ನಡ', englishName: 'Kannada' }
+    { code: 'kn', name: 'ಕನ್ನಡ', englishName: 'Kannada' },
+    { code: 'bn', name: 'বাংলা', englishName: 'Bengali' },
+    { code: 'gu', name: 'ગુજરાતી', englishName: 'Gujarati' },
+    { code: 'mr', name: 'मराठी', englishName: 'Marathi' },
+    { code: 'pa', name: 'ਪੰਜਾਬੀ', englishName: 'Punjabi' }
   ]
 
   // Sample questions in different languages
@@ -90,16 +105,32 @@ const VoiceChatbot = () => {
   }, [messages])
 
   useEffect(() => {
+    // Initialize transcript logger session
+    transcriptLogger.startSession('user', { location, preferredLanguage: selectedLanguage })
+    
     // Initialize voice processor
     voiceProcessor.setCallbacks({
       onStateChange: (state) => {
         setVoiceState(state)
       },
       onTranscription: (transcription) => {
-        setCurrentTranscription(transcription.text)
+        setCurrentTranscription(transcription)
+        
+        // Log user input when final
+        if (transcription.isFinal && transcription.transcript) {
+          transcriptLogger.logUserInput(transcription)
+        }
       },
       onResponse: (response) => {
-        const newMessage = {
+        const userMessage = {
+          id: messages.length,
+          type: 'user',
+          content: response.query,
+          timestamp: response.timestamp,
+          language: response.language
+        }
+        
+        const botMessage = {
           id: messages.length + 1,
           type: 'bot',
           content: response.response,
@@ -108,22 +139,26 @@ const VoiceChatbot = () => {
           weather: response.weather,
           query: response.query
         }
-        setMessages(prev => [
-          ...prev,
-          {
-            id: messages.length,
-            type: 'user',
-            content: response.query,
-            timestamp: response.timestamp,
-            language: response.language
-          },
-          newMessage
-        ])
-        setCurrentTranscription('')
+        
+        setMessages(prev => [...prev, userMessage, botMessage])
+        setCurrentTranscription(null)
+        
+        // Log AI response
+        transcriptLogger.logAIResponse(response, response.query)
+        
+        // Auto-switch language if detected different from selected
+        if (autoDetectLanguage && response.language !== selectedLanguage) {
+          console.log(`Auto-switching language from ${selectedLanguage} to ${response.language}`)
+          setSelectedLanguage(response.language)
+        }
       },
       onError: (error) => {
         console.error('Voice processor error:', error)
-        setCurrentTranscription('')
+        setCurrentTranscription(null)
+        
+        // Log error
+        transcriptLogger.logError(error, { component: 'voiceProcessor' })
+        
         // Add error message
         const errorMessage = {
           id: messages.length + 1,
@@ -141,8 +176,9 @@ const VoiceChatbot = () => {
 
     return () => {
       voiceProcessor.stopVoiceInteraction()
+      transcriptLogger.endSession()
     }
-  }, [selectedLanguage, location])
+  }, [selectedLanguage, location, autoDetectLanguage])
 
   const toggleVoiceMode = async () => {
     if (isVoiceMode) {
@@ -288,7 +324,7 @@ const VoiceChatbot = () => {
       {/* Settings Panel */}
       {isSettingsOpen && (
         <div className="mb-6 p-4 bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
                 <Languages className="inline h-4 w-4 mr-1" />
@@ -344,6 +380,125 @@ const VoiceChatbot = () => {
               </button>
             </div>
           </div>
+          
+          {/* Advanced Settings */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-700/50">
+            <div>
+              <label className="flex items-center space-x-2 text-sm text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={autoDetectLanguage}
+                  onChange={(e) => setAutoDetectLanguage(e.target.checked)}
+                  className="rounded bg-slate-700 border-slate-600 text-emerald-600 focus:ring-emerald-500"
+                />
+                <span>स्वतः भाषा पहचानें / Auto-detect Language</span>
+              </label>
+            </div>
+            
+            <div>
+              <label className="flex items-center space-x-2 text-sm text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={useGoogleSpeech}
+                  onChange={(e) => setUseGoogleSpeech(e.target.checked)}
+                  className="rounded bg-slate-700 border-slate-600 text-emerald-600 focus:ring-emerald-500"
+                  disabled={!googleSpeechService.isAvailable()}
+                />
+                <span>
+                  Google Speech API {!googleSpeechService.isAvailable() && '(Not Available)'}
+                </span>
+              </label>
+            </div>
+            
+            <div>
+              <button
+                onClick={() => setShowTranscriptPanel(!showTranscriptPanel)}
+                className={`w-full px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 ${
+                  showTranscriptPanel 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span>Live Transcript</span>
+              </button>
+            </div>
+            
+            <div>
+              <button
+                onClick={() => {
+                  const analytics = transcriptLogger.getAnalytics()
+                  console.log('Voice Analytics:', analytics)
+                  alert(`Conversations: ${analytics.totalConversations}\nMessages: ${analytics.totalMessages}\nAvg Confidence: ${(analytics.averageConfidence * 100).toFixed(1)}%`)
+                }}
+                className="w-full px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2 bg-slate-700 text-slate-300 hover:bg-slate-600"
+              >
+                <History className="h-4 w-4" />
+                <span>Analytics</span>
+              </button>
+            </div>
+          </div>
+          
+          {/* Voice Settings */}
+          <div className="pt-4 border-t border-slate-700/50 mt-4">
+            <h4 className="text-sm font-medium text-slate-300 mb-3">Voice Settings</h4>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Speed</label>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="2"
+                  step="0.1"
+                  value={voiceSettings.rate}
+                  onChange={(e) => setVoiceSettings({...voiceSettings, rate: parseFloat(e.target.value)})}
+                  className="w-full accent-emerald-500"
+                />
+                <span className="text-xs text-slate-500">{voiceSettings.rate}x</span>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Pitch</label>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="2"
+                  step="0.1"
+                  value={voiceSettings.pitch}
+                  onChange={(e) => setVoiceSettings({...voiceSettings, pitch: parseFloat(e.target.value)})}
+                  className="w-full accent-emerald-500"
+                />
+                <span className="text-xs text-slate-500">{voiceSettings.pitch}x</span>
+              </div>
+              <div>
+                <label className="block text-xs text-slate-400 mb-1">Volume</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={voiceSettings.volume}
+                  onChange={(e) => setVoiceSettings({...voiceSettings, volume: parseFloat(e.target.value)})}
+                  className="w-full accent-emerald-500"
+                />
+                <span className="text-xs text-slate-500">{Math.round(voiceSettings.volume * 100)}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transcript Panel */}
+      {showTranscriptPanel && (
+        <div className="mb-4">
+          <TranscriptDisplay
+            currentTranscript={currentTranscription}
+            isListening={voiceState === 'listening'}
+            isSpeaking={voiceState === 'speaking'}
+            onExportTranscript={(data) => {
+              console.log('Exported transcript data:', data)
+            }}
+            className="max-h-64"
+          />
         </div>
       )}
 
@@ -404,13 +559,36 @@ const VoiceChatbot = () => {
           ))}
           
           {/* Live transcription */}
-          {currentTranscription && (
+          {currentTranscription && !showTranscriptPanel && (
             <div className="flex items-start space-x-3">
               <div className="w-10 h-10 rounded-full bg-slate-600 flex items-center justify-center">
                 <User className="h-5 w-5 text-white" />
               </div>
               <div className="bg-slate-700/30 border border-slate-600/50 rounded-2xl px-4 py-3 max-w-md">
-                <p className="text-sm text-slate-300 italic">{currentTranscription}...</p>
+                <div className="space-y-2">
+                  {currentTranscription.interimTranscript && (
+                    <p className="text-sm text-slate-300 italic">
+                      {currentTranscription.interimTranscript}...
+                    </p>
+                  )}
+                  {currentTranscription.finalTranscript && (
+                    <div className="bg-emerald-600/10 border border-emerald-600/30 rounded p-2">
+                      <p className="text-sm text-white font-medium">
+                        {currentTranscription.finalTranscript}
+                      </p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className="text-xs text-emerald-400">
+                          {Math.round((currentTranscription.confidence || 0) * 100)}% confidence
+                        </span>
+                        {currentTranscription.detectedLanguage && currentTranscription.detectedLanguage !== selectedLanguage && (
+                          <span className="text-xs text-yellow-400">
+                            Detected: {languages.find(l => l.code === currentTranscription.detectedLanguage)?.englishName}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
