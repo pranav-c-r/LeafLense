@@ -1,0 +1,45 @@
+# Core LLM/AI
+langchain
+openai
+google-generativeai
+langchain-google-genai
+langchain-huggingface
+tiktoken
+
+# FastAPI backend
+fastapi
+uvicorn[standard]
+
+# Environment variables
+python-dotenv
+
+# Pydantic for models
+pydantic
+
+# HTTP requests
+requests
+
+# Google APIs
+google-api-python-client
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+
+# Document processing
+PyPDF2
+pdfplumber
+python-docx
+
+# OCR (for image-to-text)
+pytesseract
+Pillow
+
+# Web scraping (if needed for fetching content)
+beautifulsoup4
+html2text
+
+# CORS (if your frontend needs to call backend)
+fastapi[all]
+
+# Optional: typing extensions for compatibility
+typing-extensions

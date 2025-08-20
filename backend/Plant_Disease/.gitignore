@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.ipynb_checkpoints/
+
+# Virtual Environment (like virtualenv, pipenv)
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Model files (DON'T push the trained models, they are too big)
+*.h5
+*.keras
+*.pkl
+*.joblib
+
+# Dataset (NEVER push the actual dataset to GitHub)
+test/
+train/
+valid/
+data/
+
+# Logs and outputs
+logs/
+*.log
+
+# IDE
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# OS
+Thumbs.db
