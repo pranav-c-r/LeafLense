@@ -6,6 +6,7 @@ import {
   Beaker, 
   Lightbulb, 
   MessageCircle,
+  Mic,
   Leaf,
   X,
   TrendingUp,
@@ -56,6 +57,13 @@ const navigation = [
     icon: MessageCircle,
     description: 'Chat with AI',
     gradient: 'from-emerald-500 to-emerald-600'
+  },
+  { 
+    name: 'Voice Assistant', 
+    href: '/voice-chat', 
+    icon: Mic,
+    description: 'Voice in local languages',
+    gradient: 'from-pink-500 to-pink-600'
   },
 ]
 

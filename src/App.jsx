@@ -6,6 +6,7 @@ import DiseaseDetection from './pages/DiseaseDetection'
 import FertilizerRecommendation from './pages/FertilizerRecommendation'
 import Insights from './pages/Insights'
 import Chatbot from './pages/Chatbot'
+import VoiceChatbot from './pages/VoiceChatbot'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/fertilizer" element={<FertilizerRecommendation />} />
           <Route path="/insights" element={<Insights />} />
           <Route path="/chat" element={<Chatbot />} />
+          <Route path="/voice-chat" element={<VoiceChatbot />} />
         </Routes>
       </Layout>
     </div>
