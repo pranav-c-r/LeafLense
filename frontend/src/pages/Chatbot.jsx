@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, Send, Bot, User, Sparkles } from 'lucide-react'
-import aiService from '../services/aiService'
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([

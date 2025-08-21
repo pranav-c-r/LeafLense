@@ -96,3 +96,8 @@ coverage.xml
 # =========================
 .DS_Store
 Thumbs.db
+
+
+#datasets
+.csv
+.zip   
