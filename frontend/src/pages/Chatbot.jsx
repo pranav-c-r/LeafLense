@@ -33,29 +33,39 @@ const Chatbot = () => {
     }
 
     setMessages(prev => [...prev, userMessage])
+    const userQuery = input
     setInput('')
     setIsTyping(true)
 
-    // Simulate AI response
-    setTimeout(() => {
-      const responses = [
-        "Based on your question about crop yield, I recommend monitoring soil moisture levels closely. The current weather conditions suggest optimal growing conditions for the next week.",
-        "For disease prevention, ensure proper plant spacing and avoid overhead watering. Early morning watering is ideal as it gives plants time to dry before evening.",
-        "Your soil analysis indicates a nitrogen deficiency. I suggest applying 50kg/ha of urea fertilizer within the next 5-7 days for optimal results.",
-        "The symptoms you described sound like early blight. Apply a copper-based fungicide and remove affected leaves immediately to prevent spread.",
-        "For fertilizer recommendations, NPK ratio of 20-10-10 would be ideal for your wheat crop at this growth stage. Application rate should be 150kg/ha."
-      ]
-
+    try {
+      // Call Gemini AI service
+      const aiResponse = await aiService.processQuery(userQuery, 'en', 'Delhi')
+      
       const botMessage = {
         id: messages.length + 2,
         type: 'bot',
-        content: responses[Math.floor(Math.random() * responses.length)],
-        timestamp: new Date()
+        content: aiResponse.response,
+        timestamp: new Date(),
+        weather: aiResponse.weather
       }
 
       setMessages(prev => [...prev, botMessage])
+    } catch (error) {
+      console.error('AI service error:', error)
+      
+      // Fallback response
+      const botMessage = {
+        id: messages.length + 2,
+        type: 'bot',
+        content: "I apologize, but I'm having trouble connecting to my AI services right now. Please try again in a moment, or check if your API keys are configured properly.",
+        timestamp: new Date(),
+        isError: true
+      }
+
+      setMessages(prev => [...prev, botMessage])
+    } finally {
       setIsTyping(false)
-    }, 1500)
+    }
   }
 
   const handleKeyPress = (e) => {
@@ -121,10 +131,26 @@ const Chatbot = () => {
               <div className={`max-w-md ${message.type === 'user' ? 'text-right' : ''}`}>
                 <div className={`inline-block px-4 py-3 rounded-2xl ${
                   message.type === 'bot'
-                    ? 'bg-slate-700/50 text-slate-100'
+                    ? message.isError
+                      ? 'bg-red-600/20 text-red-200'
+                      : 'bg-slate-700/50 text-slate-100'
                     : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                 }`}>
                   <p className="text-sm leading-relaxed">{message.content}</p>
+                  
+                  {/* Weather info for bot responses */}
+                  {message.weather && (
+                    <div className="mt-2 pt-2 border-t border-slate-600/50">
+                      <p className="text-xs text-slate-400">
+                        🌡️ {message.weather.current.temp_c}°C | 
+                        💧 {message.weather.current.humidity}% | 
+                        ☁️ {message.weather.current.condition.text}
+                        {message.weather.forecast?.forecastday[0] && (
+                          <span> | 🌧️ {message.weather.forecast.forecastday[0].day.daily_chance_of_rain}% rain chance</span>
+                        )}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <p className="text-xs text-slate-500 mt-1">
                   {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

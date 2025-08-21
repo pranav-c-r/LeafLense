@@ -24,8 +24,8 @@ const featureCards = [
     description: 'AI-powered yield forecasting using soil conditions, weather data, and historical patterns to predict harvest outcomes.',
     href: '/crop-yield',
     icon: Wheat,
-    gradient: 'from-agri-500 to-agri-600',
-    bgGradient: 'from-agri-500/10 to-agri-600/5',
+    gradient: 'from-green-600 to-green-700',
+    bgGradient: 'from-green-600/10 to-green-700/5',
     stats: '94.2% accuracy'
   },
   {
@@ -42,8 +42,8 @@ const featureCards = [
     description: 'Get personalized NPK recommendations based on soil analysis and crop requirements for optimal growth.',
     href: '/fertilizer',
     icon: Beaker,
-    gradient: 'from-soil-500 to-soil-600',
-    bgGradient: 'from-soil-500/10 to-soil-600/5',
+    gradient: 'from-green-700 to-green-800',
+    bgGradient: 'from-green-700/10 to-green-800/5',
     stats: '500+ crop types'
   },
   {
@@ -51,8 +51,8 @@ const featureCards = [
     description: 'Combined intelligence from all models to provide actionable farming advice and strategic recommendations.',
     href: '/insights',
     icon: Lightbulb,
-    gradient: 'from-purple-500 to-purple-600',
-    bgGradient: 'from-purple-500/10 to-purple-600/5',
+    gradient: 'from-green-500 to-green-600',
+    bgGradient: 'from-green-500/10 to-green-600/5',
     stats: 'Real-time analysis'
   },
   {
@@ -60,8 +60,8 @@ const featureCards = [
     description: 'Chat with our AI assistant for instant answers about farming techniques, crop care, and agricultural best practices.',
     href: '/chat',
     icon: MessageCircle,
-    gradient: 'from-emerald-500 to-emerald-600',
-    bgGradient: 'from-emerald-500/10 to-emerald-600/5',
+    gradient: 'from-green-600 to-green-700',
+    bgGradient: 'from-green-600/10 to-green-700/5',
     stats: '24/7 available'
   }
 ]
@@ -83,55 +83,55 @@ const Dashboard = () => {
   return (
     <div className="p-6 space-y-8">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-800/50 via-slate-900/50 to-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-700/50 p-8">
+      <div className="relative overflow-hidden bg-gradient-to-br from-gray-800/50 via-gray-900/50 to-gray-800/50 backdrop-blur-sm rounded-3xl border border-gray-700/50 p-8">
         {/* Background decoration */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-agri-400 rounded-full animate-float"></div>
-          <div className="absolute top-20 right-20 w-16 h-16 bg-blue-400 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-10 left-1/3 w-12 h-12 bg-purple-400 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-10 left-10 w-20 h-20 bg-green-400 rounded-full animate-float"></div>
+          <div className="absolute top-20 right-20 w-16 h-16 bg-green-500 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-10 left-1/3 w-12 h-12 bg-green-600 rounded-full animate-float" style={{ animationDelay: '2s' }}></div>
         </div>
         
         <div className="relative z-10">
           <div className="flex items-center space-x-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-agri-500 to-agri-600 rounded-2xl flex items-center justify-center animate-glow">
+            <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-green-700 rounded-2xl flex items-center justify-center animate-glow">
               <Leaf className="h-8 w-8 text-white" />
             </div>
             <div>
               <h1 className="text-4xl font-bold text-gradient mb-2">
                 Welcome to AI Agri-Advisor
               </h1>
-              <p className="text-lg text-slate-300">
+              <p className="text-lg text-gray-300">
                 Smart agriculture powered by artificial intelligence
               </p>
             </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/30">
+            <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">
               <div className="flex items-center justify-between mb-4">
-                <MapPin className="h-8 w-8 text-agri-400" />
-                <span className="text-sm text-slate-400">Location</span>
+                <MapPin className="h-8 w-8 text-green-400" />
+                <span className="text-sm text-gray-400">Location</span>
               </div>
               <h3 className="text-xl font-bold text-white">Midwest Farm</h3>
-              <p className="text-slate-300">Iowa, United States</p>
+              <p className="text-gray-300">Iowa, United States</p>
             </div>
             
-            <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/30">
+            <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">
               <div className="flex items-center justify-between mb-4">
-                <Calendar className="h-8 w-8 text-blue-400" />
-                <span className="text-sm text-slate-400">Season</span>
+                <Calendar className="h-8 w-8 text-green-400" />
+                <span className="text-sm text-gray-400">Season</span>
               </div>
               <h3 className="text-xl font-bold text-white">Growing Season</h3>
-              <p className="text-slate-300">Day 145 of 180</p>
+              <p className="text-gray-300">Day 145 of 180</p>
             </div>
             
-            <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/30">
+            <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">
               <div className="flex items-center justify-between mb-4">
-                <TrendingUp className="h-8 w-8 text-emerald-400" />
-                <span className="text-sm text-slate-400">Performance</span>
+                <TrendingUp className="h-8 w-8 text-green-400" />
+                <span className="text-sm text-gray-400">Performance</span>
               </div>
               <h3 className="text-xl font-bold text-white">Excellent</h3>
-              <p className="text-slate-300">+15% vs last season</p>
+              <p className="text-gray-300">+15% vs last season</p>
             </div>
           </div>
         </div>
@@ -140,33 +140,33 @@ const Dashboard = () => {
       {/* Stats Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => (
-          <div key={stat.name} className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50 card-hover">
+          <div key={stat.name} className="bg-gray-800/40 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50 card-hover">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center">
-                <stat.icon className="h-6 w-6 text-agri-400" />
+              <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl flex items-center justify-center">
+                <stat.icon className="h-6 w-6 text-green-400" />
               </div>
-              <span className={`text-sm font-medium ${stat.changeType === 'positive' ? 'text-agri-400' : 'text-red-400'}`}>
+              <span className={`text-sm font-medium ${stat.changeType === 'positive' ? 'text-green-400' : 'text-red-400'}`}>
                 {stat.change}
               </span>
             </div>
             <h3 className="text-2xl font-bold text-white mb-1">{stat.value}</h3>
-            <p className="text-slate-400 text-sm">{stat.name}</p>
+            <p className="text-gray-400 text-sm">{stat.name}</p>
           </div>
         ))}
       </div>
 
       {/* Weather Widget */}
-      <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 backdrop-blur-sm rounded-2xl p-6 border border-blue-700/30">
+      <div className="bg-gradient-to-br from-gray-900/20 to-gray-800/20 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center">
           <Sun className="h-6 w-6 mr-3 text-yellow-400" />
           Current Weather Conditions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {weatherData.map((item) => (
-            <div key={item.label} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-xl">
+            <div key={item.label} className="flex items-center justify-between p-4 bg-gray-800/30 rounded-xl">
               <div className="flex items-center space-x-3">
                 <item.icon className={`h-6 w-6 ${item.color}`} />
-                <span className="text-slate-300">{item.label}</span>
+                <span className="text-gray-300">{item.label}</span>
               </div>
               <span className="text-xl font-bold text-white">{item.value}</span>
             </div>
@@ -178,8 +178,8 @@ const Dashboard = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-white">AI-Powered Tools</h2>
-          <div className="flex items-center space-x-2 text-slate-400">
-            <Brain className="h-5 w-5 animate-pulse" />
+          <div className="flex items-center space-x-2 text-gray-400">
+            <Brain className="h-5 w-5 animate-pulse text-green-400" />
             <span className="text-sm">Powered by Machine Learning</span>
           </div>
         </div>
@@ -189,7 +189,7 @@ const Dashboard = () => {
             <Link
               key={feature.name}
               to={feature.href}
-              className={`group relative overflow-hidden bg-gradient-to-br ${feature.bgGradient} backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6 card-hover`}
+              className={`group relative overflow-hidden bg-gradient-to-br ${feature.bgGradient} backdrop-blur-sm rounded-2xl border border-gray-700/50 p-6 card-hover`}
             >
               {/* Background decoration */}
               <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
@@ -201,24 +201,24 @@ const Dashboard = () => {
                   <div className={`w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
                     <feature.icon className="h-7 w-7 text-white" />
                   </div>
-                  <div className="flex items-center text-slate-400 group-hover:text-agri-400 transition-colors">
+                  <div className="flex items-center text-gray-400 group-hover:text-green-400 transition-colors">
                     <span className="text-sm mr-2">Explore</span>
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
                 
-                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-agri-100 transition-colors">
+                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-green-100 transition-colors">
                   {feature.name}
                 </h3>
-                <p className="text-slate-300 text-sm mb-4 leading-relaxed">
+                <p className="text-gray-300 text-sm mb-4 leading-relaxed">
                   {feature.description}
                 </p>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-400 bg-slate-800/50 px-3 py-1 rounded-full">
+                  <span className="text-xs text-gray-400 bg-gray-800/50 px-3 py-1 rounded-full">
                     {feature.stats}
                   </span>
-                  <div className="w-2 h-2 bg-agri-400 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 </div>
               </div>
             </Link>
@@ -227,39 +227,39 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-gradient-to-r from-agri-900/20 to-emerald-900/20 backdrop-blur-sm rounded-2xl p-6 border border-agri-700/30">
+      <div className="bg-gradient-to-r from-green-900/20 to-green-800/20 backdrop-blur-sm rounded-2xl p-6 border border-green-700/30">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-          <Zap className="h-6 w-6 mr-3 text-agri-400" />
+          <Zap className="h-6 w-6 mr-3 text-green-400" />
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link to="/disease-detection" className="flex items-center space-x-3 p-4 bg-slate-800/30 rounded-xl hover:bg-slate-700/30 transition-colors group">
+          <Link to="/disease-detection" className="flex items-center space-x-3 p-4 bg-gray-800/30 rounded-xl hover:bg-gray-700/30 transition-colors group">
             <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
               <Bug className="h-5 w-5 text-red-400" />
             </div>
             <div>
-              <h4 className="font-medium text-white group-hover:text-agri-100">Quick Diagnosis</h4>
-              <p className="text-xs text-slate-400">Upload leaf image</p>
+              <h4 className="font-medium text-white group-hover:text-green-100">Quick Diagnosis</h4>
+              <p className="text-xs text-gray-400">Upload leaf image</p>
             </div>
           </Link>
           
-          <Link to="/chat" className="flex items-center space-x-3 p-4 bg-slate-800/30 rounded-xl hover:bg-slate-700/30 transition-colors group">
-            <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-              <MessageCircle className="h-5 w-5 text-emerald-400" />
+          <Link to="/chat" className="flex items-center space-x-3 p-4 bg-gray-800/30 rounded-xl hover:bg-gray-700/30 transition-colors group">
+            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+              <MessageCircle className="h-5 w-5 text-green-400" />
             </div>
             <div>
-              <h4 className="font-medium text-white group-hover:text-agri-100">Ask AI Assistant</h4>
-              <p className="text-xs text-slate-400">Get instant help</p>
+              <h4 className="font-medium text-white group-hover:text-green-100">Ask AI Assistant</h4>
+              <p className="text-xs text-gray-400">Get instant help</p>
             </div>
           </Link>
           
-          <Link to="/insights" className="flex items-center space-x-3 p-4 bg-slate-800/30 rounded-xl hover:bg-slate-700/30 transition-colors group">
-            <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              <Lightbulb className="h-5 w-5 text-purple-400" />
+          <Link to="/insights" className="flex items-center space-x-3 p-4 bg-gray-800/30 rounded-xl hover:bg-gray-700/30 transition-colors group">
+            <div className="w-10 h-10 bg-green-600/20 rounded-lg flex items-center justify-center">
+              <Lightbulb className="h-5 w-5 text-green-400" />
             </div>
             <div>
-              <h4 className="font-medium text-white group-hover:text-agri-100">View Insights</h4>
-              <p className="text-xs text-slate-400">AI recommendations</p>
+              <h4 className="font-medium text-white group-hover:text-green-100">View Insights</h4>
+              <p className="text-xs text-gray-400">AI recommendations</p>
             </div>
           </Link>
         </div>
