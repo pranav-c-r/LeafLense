@@ -113,11 +113,12 @@ class VoiceProcessor {
         
         console.log('Processing query:', transcript, 'in language:', processingLanguage);
         
-        // Process with AI service
+        // Process with AI service (uses Gemini 2.0 Flash by default)
         const aiResult = await aiService.processQuery(
           transcript, 
           processingLanguage, 
-          this.userLocation
+          this.userLocation,
+          true // Explicitly use Gemini
         );
 
         console.log('AI response:', aiResult);
@@ -245,7 +246,8 @@ class VoiceProcessor {
       const aiResult = await aiService.processQuery(
         text, 
         processingLanguage, 
-        this.userLocation
+        this.userLocation,
+        true // Explicitly use Gemini
       );
 
       if (this.onResponse) {
