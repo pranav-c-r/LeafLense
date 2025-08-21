@@ -56,3 +56,4 @@ __pycache__/
 # Optional: ignore system files
 .DS_Store
 Thumbs.db
+backend/FarmAgent/serviceAccountKey.json
