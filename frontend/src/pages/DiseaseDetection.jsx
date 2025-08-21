@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import axios from 'axios'
 import { Bug, Upload, Camera, Zap, Brain, AlertTriangle, CheckCircle, X, Eye } from 'lucide-react'
 
 const DiseaseDetection = () => {
@@ -6,18 +7,18 @@ const DiseaseDetection = () => {
   const [isDragging, setIsDragging] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [result, setResult] = useState(null)
+  const [error, setError] = useState("")
   const fileInputRef = useRef(null)
 
+  // Drag/Drop Handlers
   const handleDragOver = (e) => {
     e.preventDefault()
     setIsDragging(true)
   }
-
   const handleDragLeave = (e) => {
     e.preventDefault()
     setIsDragging(false)
   }
-
   const handleDrop = (e) => {
     e.preventDefault()
     setIsDragging(false)
@@ -27,6 +28,7 @@ const DiseaseDetection = () => {
     }
   }
 
+  // Image Select
   const handleImageSelect = (file) => {
     const reader = new FileReader()
     reader.onload = (e) => {
@@ -36,70 +38,85 @@ const DiseaseDetection = () => {
         name: file.name
       })
       setResult(null)
+      setError("")
     }
     reader.readAsDataURL(file)
   }
-
   const handleFileInput = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files
     if (file) {
-      handleImageSelect(file)
+      handleImageSelect(file[0])
     }
   }
 
-  const analyzeImage = () => {
-    setIsAnalyzing(true)
-    
-    // Simulate AI analysis
-    setTimeout(() => {
-      const diseases = [
-        { name: 'Leaf Blight', confidence: 92, severity: 'High', treatment: 'Apply copper-based fungicide', color: 'red' },
-        { name: 'Powdery Mildew', confidence: 87, severity: 'Medium', treatment: 'Sulfur-based fungicide recommended', color: 'yellow' },
-        { name: 'Healthy Leaf', confidence: 96, severity: 'None', treatment: 'No treatment needed', color: 'green' }
-      ]
-      
-      const randomDisease = diseases[Math.floor(Math.random() * diseases.length)]
-      
-      setResult({
-        disease: randomDisease,
-        detailsDetected: [
-          'Leaf discoloration patterns',
-          'Texture abnormalities',
-          'Disease-specific markers',
-          'Overall plant health indicators'
-        ],
-        recommendations: [
-          `Apply ${randomDisease.treatment} within 48 hours`,
-          'Monitor adjacent plants for spread',
-          'Improve air circulation around plants',
-          'Remove affected leaves to prevent spread',
-          'Maintain proper watering schedule'
-        ],
-        preventiveMeasures: [
-          'Regular plant inspection',
-          'Proper spacing between plants',
-          'Avoid overhead watering',
-          'Apply preventive fungicide spray'
-        ]
-      })
-      setIsAnalyzing(false)
-    }, 3000)
+  // Clean advice text: split by separators and trim
+  const formatAdviceText = (advice) => {
+    if (!advice) return []
+    // Remove markdown headers and split by '---' or '###'
+    return advice
+      .replace(/###/g, '')
+      .split(/---/g)
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
   }
 
+  // ANALYZE IMAGE HANDLER
+  const analyzeImage = async () => {
+    if (!selectedImage?.file) return
+
+    setIsAnalyzing(true)
+    setError("")
+    setResult(null)
+
+    const formData = new FormData()
+    formData.append('file', selectedImage.file)
+
+    try {
+      const response = await axios.post(
+        'http://localhost:8000/', 
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      )
+      if (response.data.error) {
+        setError(response.data.error)
+        setIsAnalyzing(false)
+        return
+      }
+
+      const { class: diseaseName, advice } = response.data
+
+      // parse preventive measures if present
+      const preventiveRegex = /Preventive measures\:?(.+)/i
+      let preventive = []
+      if (preventiveRegex.test(advice)) {
+        preventive = preventiveRegex
+          .exec(advice)[1]
+          ?.trim()
+          .split(/\.\s*|\n/)
+          .filter(line => line && line.length > 2) || []
+      }
+
+      setResult({
+        disease: {
+          name: diseaseName || "Unknown Disease",
+          treatment: advice || "No treatment advice available.",
+        },
+        detailsDetected: formatAdviceText(advice),
+        preventiveMeasures: preventive
+      })
+    } catch (err) {
+      setError("API error: " + (err.response?.data?.error || err.message))
+    }
+    setIsAnalyzing(false)
+  }
+
+  // Clear selection
   const clearImage = () => {
     setSelectedImage(null)
     setResult(null)
+    setError("")
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
-    }
-  }
-
-  const getSeverityColor = (severity) => {
-    switch (severity) {
-      case 'High': return 'text-red-400 bg-red-500/20 border-red-500/30'
-      case 'Medium': return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30'
-      case 'Low': return 'text-blue-400 bg-blue-500/20 border-blue-500/30'
-      default: return 'text-green-400 bg-green-500/20 border-green-500/30'
     }
   }
 
@@ -118,7 +135,7 @@ const DiseaseDetection = () => {
         </div>
         <div className="flex items-center space-x-2 text-slate-400">
           <Brain className="h-5 w-5 animate-pulse text-red-400" />
-          <span className="text-sm">96.8% Accuracy</span>
+          <span className="text-sm">AI Powered</span>
         </div>
       </div>
 
@@ -207,6 +224,7 @@ const DiseaseDetection = () => {
                 </button>
               </div>
             )}
+            {error && <div className="mt-4 text-red-400 text-sm">{error}</div>}
           </div>
 
           {/* Instructions */}
@@ -238,98 +256,37 @@ const DiseaseDetection = () => {
           {result ? (
             <>
               {/* Main Result */}
-              <div className={`bg-gradient-to-br backdrop-blur-sm rounded-2xl p-6 border ${
-                result.disease.color === 'green' 
-                  ? 'from-green-500/20 to-green-600/10 border-green-500/30'
-                  : result.disease.color === 'yellow'
-                  ? 'from-yellow-500/20 to-yellow-600/10 border-yellow-500/30'
-                  : 'from-red-500/20 to-red-600/10 border-red-500/30'
-              }`}>
+              <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 backdrop-blur-sm rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-white">Analysis Result</h2>
-                  <div className="flex items-center space-x-2">
-                    {result.disease.color === 'green' ? (
-                      <CheckCircle className="h-5 w-5 text-green-400" />
-                    ) : (
-                      <AlertTriangle className="h-5 w-5 text-red-400" />
-                    )}
-                    <span className="text-sm text-slate-300">{result.disease.confidence}% Confidence</span>
-                  </div>
+                  <CheckCircle className="h-5 w-5 text-green-400" />
                 </div>
 
                 <div className="text-center py-6">
                   <div className="text-3xl font-bold text-white mb-2">
                     {result.disease.name}
                   </div>
-                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm border ${getSeverityColor(result.disease.severity)}`}>
-                    {result.disease.severity} Severity
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">{result.disease.confidence}%</div>
-                    <div className="text-sm text-slate-400">Confidence</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">&lt; 2s</div>
-                    <div className="text-sm text-slate-400">Analysis Time</div>
-                  </div>
                 </div>
               </div>
 
               {/* Detection Details */}
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                  <Brain className="h-5 w-5 mr-2 text-purple-400" />
-                  Detection Details
-                </h3>
-                
-                <div className="space-y-3">
-                  {result.detailsDetected.map((detail, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-slate-700/30 rounded-lg">
-                      <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
-                      <span className="text-slate-300 text-sm">{detail}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Treatment Recommendations */}
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                  <AlertTriangle className="h-5 w-5 mr-2 text-yellow-400" />
-                  Treatment Plan
-                </h3>
-                
-                <div className="space-y-3">
-                  {result.recommendations.map((rec, index) => (
-                    <div key={index} className="flex items-start space-x-3 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
-                      <div className="w-6 h-6 bg-yellow-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-yellow-400 text-xs font-bold">{index + 1}</span>
+              {result.detailsDetected?.length > 0 && (
+                <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+                    <Brain className="h-5 w-5 mr-2 text-purple-400" />
+                    Detection Details
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    {result.detailsDetected.map((detail, index) => (
+                      <div key={index} className="flex items-start space-x-3 p-3 bg-slate-700/30 rounded-lg">
+                        <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0 mt-1" />
+                        <span className="text-slate-300 text-sm">{detail}</span>
                       </div>
-                      <span className="text-slate-300 text-sm">{rec}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              {/* Prevention */}
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                  <CheckCircle className="h-5 w-5 mr-2 text-green-400" />
-                  Prevention Tips
-                </h3>
-                
-                <div className="space-y-3">
-                  {result.preventiveMeasures.map((tip, index) => (
-                    <div key={index} className="flex items-start space-x-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                      <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-slate-300 text-sm">{tip}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              )}
             </>
           ) : (
             <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-12 border border-slate-700/50 text-center">

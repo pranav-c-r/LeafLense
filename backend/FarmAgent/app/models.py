@@ -1,25 +1,29 @@
-from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Optional, List
 from datetime import datetime
-import uuid
-
-class Farmer(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+class Farmer(BaseModel):
+    id: int
     name: str
-    phone: str
-    whatsapp_opt_in: bool = True
-    district: Optional[str] = None
-    lat: float
-    lon: float
-    crop: str
-    growth_stage: str = "vegetative"
-    language: str = "en"
-
-class Alert(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    farmer_id: uuid.UUID = Field(foreign_key="farmer.id")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    risk_json: str | None = None
+    phone: str = Field(..., description="Phone number of farmer in E.164 format")
+    location: str
+    crop: Optional[str] = None
+class RiskAlert(BaseModel):
+    farmer_id: int
+    risk_type: str
+    severity: str
     message: str
-    channel: str = "whatsapp"
-    status: str = "sent"
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+class NotificationPayload(BaseModel):
+    phone: str
+    message: str
+
+class User(BaseModel):
+    id: int
+    username: str
+    email: str
+    role: str = "admin" 
+class APIResponse(BaseModel):
+    status: str
+    data: Optional[dict] = None
+    errors: Optional[List[str]] = None

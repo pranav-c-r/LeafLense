@@ -1,32 +1,32 @@
-import os, json
-from datetime import datetime
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
+from pathlib import Path
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(env_path)
 
-# Placeholder reasoner that formats a concise advisory from inputs.
-# Replace with an LLM call (DeepSeek/Gemini) during integration.
-def compose_advisory(farmer: dict, signals: dict) -> dict:
-    fdi = signals.get("fdi", 0.0)
-    ior = signals.get("ior", 0.0)
-    irr = signals.get("irrigation_action", "monitor")
-    district = farmer.get("district") or "your area"
-    crop = farmer.get("crop")
-    lang = farmer.get("language", "en")
-    headline = f"{crop.title()} advisory for {district}"
-    actions = []
-    if irr == "skip":
-        actions.append({"what": "Skip irrigation", "when": "today", "how_much": "-", "caution": "Rain likely in next 48h"})
-    elif irr == "irrigate":
-        actions.append({"what": "Irrigate field", "when": "today evening or early morning", "how_much": "Light irrigation (2–3 cm)", "caution": "Avoid waterlogging"})
-    if fdi >= 0.7:
-        actions.append({"what": "Fungal disease risk high: inspect lower leaves, remove infected parts", "when": "today", "how_much": "-", "caution": "Prefer IPM/organic options where possible"})
-    if ior >= 0.7:
-        actions.append({"what": "Insect risk high: install pheromone/sticky traps, monitor twice daily", "when": "next 48h", "how_much": "5–8 traps/acre", "caution": "Targeted spray only if threshold crossed"})
-    if not actions:
-        actions.append({"what": "Conditions normal", "when": "this week", "how_much": "-", "caution": "Keep monitoring weather updates"})
-    advisory = {
-        "language": lang,
-        "headline": headline,
-        "actions": actions,
-        "rationale": f"disease={fdi}, insect={ior}, irrigation={irr}",
-        "urgency": "high" if max(fdi, ior) >= 0.7 else ("medium" if max(fdi, ior) >= 0.4 else "low")
-    }
-    return advisory
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+async def generate_advice(farmer: dict, weather: dict, risks: dict) -> str:
+    prompt = f"""
+    Create urgent weather advisory for farmer. MAX 160 CHARACTERS.
+
+    FARMER: {farmer.get('name')} - {farmer.get('crop')} ({farmer.get('growth_stage')})
+    LOCATION: {farmer.get('district')}
+    
+    WEATHER: {weather['current_temp']}°C, {weather['humidity']}% humidity, {weather['conditions']}
+    RAIN: {weather['total_rainfall']}mm last 24h, {weather['wet_hours']} humid hours
+    
+    RISKS: Disease {risks['disease_risk']*100}%, Pests {risks['pest_risk']*100}%
+    ACTION: {risks['irrigation_action'].upper()} irrigation
+
+    Write direct, urgent message in English. No greetings. Just critical actions.
+    """
+
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt)
+        return response.text.strip().replace('*', '').replace('#', '')[:160]
+    except Exception as e:
+        print(f"Gemini API failed: {e}")
+        return f"URGENT: {risks['disease_risk']*100}% disease risk. {risks['irrigation_action'].upper()} irrigation for {farmer.get('crop')}."

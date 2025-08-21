@@ -1,6 +1,18 @@
+import { signOut } from 'firebase/auth';
 import { Menu, Bell, Search, User, Leaf } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
+import { auth } from '../../config/firebase';
 
 const Header = ({ setSidebarOpen }) => {
+  const navigate = useNavigate()
+   const logout = async () => {
+        try {
+            await signOut(auth);
+            navigate("/");
+        } catch (error) {
+            console.error("Error signing out:", error);
+        }
+    };
   return (
     <header className="bg-slate-900/95 backdrop-blur-xl border-b border-slate-700/50 sticky top-0 z-30">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -45,7 +57,7 @@ const Header = ({ setSidebarOpen }) => {
           {/* Right side - Notifications + Profile */}
           <div className="flex items-center space-x-4">
             {/* Notifications */}
-            <button className="relative p-2 text-slate-400 hover:text-white transition-colors">
+            <button onClick={()=>logout()} className="relative p-2 text-slate-400 hover:text-white transition-colors">
               <Bell className="h-6 w-6" />
               <span className="absolute -top-1 -right-1 h-4 w-4 bg-agri-500 rounded-full flex items-center justify-center">
                 <span className="text-xs text-white font-medium">3</span>
@@ -55,7 +67,9 @@ const Header = ({ setSidebarOpen }) => {
             {/* Profile */}
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <User className="h-5 w-5 text-white" />
+                <button onClick={()=>navigate('/profile')}>
+                  <User className="h-5 w-5 text-white" />
+                </button>
               </div>
               <div className="hidden sm:block">
                 <p className="text-sm font-medium text-white">Farmer John</p>

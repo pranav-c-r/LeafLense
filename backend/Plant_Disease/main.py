@@ -9,12 +9,18 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from dotenv import load_dotenv
 import os
-
+from fastapi.middleware.cors import CORSMiddleware
 # Load environment variables
 load_dotenv()
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or restrict to your frontend's URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Plant disease class names
 class_names = [
     "Apple___Apple_scab",
@@ -77,7 +83,24 @@ prompt1 = PromptTemplate(
         2. Organic remedies
         3. Chemical remedies (if available)
         4. Preventive measures
-        Return the answer in plain farmer-friendly text and maintain polite tone and make it short.
+        Return the answer in simple and matured and respected language and answer should be within 100 words.
+        You should return the answer in such a manner:
+        ### Disease Name
+        ---
+        ### Cause
+        --- (if any)
+        ### Symptoms
+        --- (if any)
+
+        ### Organic Remedies
+        ---  (if any)
+
+        ### Chemical Remedies
+        --- (if any) 
+
+        ### Prevention
+        --- (if any)
+        and never try highlighting any text using **. so give proper response.
     """,
     input_variables=["disease"]
 )

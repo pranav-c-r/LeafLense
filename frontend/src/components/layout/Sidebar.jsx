@@ -17,7 +17,7 @@ import {
 const navigation = [
   { 
     name: 'Dashboard', 
-    href: '/', 
+    href: '/dashboard', 
     icon: LayoutDashboard,
     description: 'Overview & Analytics',
     gradient: 'from-blue-500 to-blue-600'

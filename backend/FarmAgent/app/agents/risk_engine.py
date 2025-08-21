@@ -1,19 +1,68 @@
+# agents/risk_engine.py
 from math import exp
 
 def sigmoid(x: float) -> float:
     return 1 / (1 + exp(-x))
 
-def compute_fdi(wet_hours_24: int, temp_window_ok: bool, rain_recent_mm: float) -> float:
-    score = 0.5 * (wet_hours_24/24) + 0.3 * (1 if temp_window_ok else 0) + 0.2 * (1 if rain_recent_mm >= 5 else 0)
-    return round(sigmoid(4*(score-0.5)), 3)  # sharpen
+def compute_fdi(wet_hours: int, temp_optimal: bool, rain_recent: float) -> float:
+    score = 0.5 * (wet_hours / 24) + 0.3 * (1 if temp_optimal else 0) + 0.2 * (1 if rain_recent >= 5 else 0)
+    return round(sigmoid(4 * (score - 0.5)), 3)
 
-def compute_ior(temp_window_ok: bool, rain_recent: bool, dry_spell: bool, wind_ok: bool) -> float:
-    x = 0.4*(1 if temp_window_ok else 0) + 0.3*(1 if rain_recent else 0) + 0.2*(1 if dry_spell else 0) + 0.1*(1 if wind_ok else 0)
-    return round(sigmoid(4*(x-0.5)), 3)
+def compute_ior(temp_optimal: bool, had_rain: bool, dry_period: bool, windy: bool) -> float:
+    score = 0.4 * (1 if temp_optimal else 0) + 0.3 * (1 if had_rain else 0) + 0.2 * (1 if dry_period else 0) + 0.1 * (1 if windy else 0)
+    return round(sigmoid(4 * (score - 0.5)), 3)
 
-def irrigation_action(rain_next48_prob: float, water_need_proxy: float) -> str:
-    if rain_next48_prob >= 0.6:
+def get_irrigation_action(rainfall: float, temperature: float) -> str:
+    if rainfall > 8:
         return "skip"
-    if water_need_proxy > 0.5:
+    elif rainfall < 3 and temperature > 28:
         return "irrigate"
-    return "monitor"
+    else:
+        return "monitor"
+
+def get_crop_temp_range(crop_type: str) -> tuple:
+    ranges = {
+        "rice": (20, 35), "wheat": (10, 25), "maize": (15, 30),
+        "tomato": (18, 27), "potato": (15, 25), "cotton": (20, 32),
+        "sugarcane": (20, 35), "default": (15, 30)
+    }
+    return ranges.get(crop_type.lower(), ranges["default"])
+
+def calculate_risks(weather_data: dict, crop_type: str = "default") -> dict:
+    if not weather_data:
+        return {"error": "No weather data available"}
+
+    avg_temp = weather_data.get('avg_temp', 25)
+    current_temp = weather_data.get('current_temp', avg_temp)
+    total_rainfall = weather_data.get('total_rainfall', 0)
+    wet_hours = weather_data.get('wet_hours', 0)
+    max_wind_speed = weather_data.get('max_wind_speed', 0)
+    humidity = weather_data.get('humidity', 50)
+    conditions = weather_data.get('conditions', 'Unknown')
+
+    temp_min, temp_max = get_crop_temp_range(crop_type)
+    temp_optimal = temp_min <= avg_temp <= temp_max
+    had_recent_rain = total_rainfall > 2
+    is_windy = max_wind_speed > 4
+
+    disease_risk = compute_fdi(wet_hours, temp_optimal, total_rainfall)
+    pest_risk = compute_ior(temp_optimal, had_recent_rain, total_rainfall < 1, is_windy)
+    irrigation = get_irrigation_action(total_rainfall, current_temp)
+
+    rationale = []
+    if disease_risk > 0.6:
+        rationale.append(f"High disease risk ({disease_risk*100}%) due to {wet_hours} humid hours")
+    if pest_risk > 0.5:
+        rationale.append(f"Pest risk ({pest_risk*100}%) - favorable conditions detected")
+    rationale.append(f"Irrigation: {irrigation.upper()}")
+
+    return {
+        "disease_risk": disease_risk,
+        "pest_risk": pest_risk,
+        "irrigation_action": irrigation,
+        "rationale": rationale,
+        "humidity": humidity,
+        "conditions": conditions,
+        "current_temp": current_temp,
+        "avg_temp": avg_temp
+    }

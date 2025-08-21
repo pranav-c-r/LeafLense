@@ -1,22 +1,99 @@
-import os, httpx
+import os
+import requests
+from pathlib import Path
+from dotenv import load_dotenv
 
-WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN", "")
-WHATSAPP_PHONE_ID = os.getenv("WHATSAPP_PHONE_ID", "")
-DEFAULT_TO = os.getenv("DEFAULT_TO_NUMBER", "")
+# Load .env from the correct location (FarmAgent folder)
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(env_path)
 
-GRAPH_URL = "https://graph.facebook.com/v21.0"
+PERISKOPE_API_KEY = os.getenv("PERISKOPE_API_KEY")
+PERISKOPE_PHONE_ID = os.getenv("PERISKOPE_PHONE_ID", "")
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", "http://localhost:3000")
 
-async def send_whatsapp_text(text: str, to: str | None = None) -> dict:
-    if not (WHATSAPP_TOKEN and WHATSAPP_PHONE_ID):
-        return {"status": "skipped", "reason": "missing_whatsapp_config"}
-    to = to or DEFAULT_TO
-    url = f"{GRAPH_URL}/{WHATSAPP_PHONE_ID}/messages"
-    headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}", "Content-Type": "application/json"}
-    payload = {"messaging_product": "whatsapp", "to": to, "type": "text", "text": {"body": text}}
-    async with httpx.AsyncClient(timeout=20) as client:
-        r = await client.post(url, headers=headers, json=payload)
-        try:
-            r.raise_for_status()
-            return {"status": "sent", "response": r.json()}
-        except Exception:
-            return {"status": "failed", "response": r.text}
+def send_whatsapp_alert(phone_number: str, message: str) -> bool:
+    """
+    Send a WhatsApp message via Periskope MCP Server.
+    - phone_number: recipient's WhatsApp number with country code (e.g., "+919876543210")
+    - message: text content to send
+    Returns True on success, False on failure.
+    """
+    if not PERISKOPE_API_KEY:
+        print("❌ ERROR: PERISKOPE_API_KEY missing in .env")
+        return False
+
+    if not PERISKOPE_PHONE_ID:
+        print("❌ ERROR: PERISKOPE_PHONE_ID missing in .env (get from Periskope dashboard)")
+        return False
+
+    # Clean phone number (remove spaces, keep + and digits)
+    clean_phone = ''.join(filter(lambda x: x in '+0123456789', phone_number))
+    if not clean_phone.startswith('+'):
+        print(f"❌ ERROR: Phone number must include country code: {phone_number}")
+        return False
+
+    # MCP Server endpoint
+    url = f"{MCP_SERVER_URL}/messages/send"
+    
+    headers = {
+        "Authorization": f"Bearer {PERISKOPE_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    
+    payload = {
+        "to": clean_phone,      # Full international format: "+919876543210"
+        "message": message,     # The message content
+        "phone_id": PERISKOPE_PHONE_ID  # Your Periskope phone identifier
+    }
+
+    try:
+        print(f"📤 Sending WhatsApp to {clean_phone} via MCP server...")
+        resp = requests.post(url, json=payload, headers=headers, timeout=30)
+        
+        # Check for successful response
+        if resp.status_code == 200:
+            print(f"✅ WhatsApp sent successfully to {clean_phone}")
+            print(f"📨 Response: {resp.text}")
+            return True
+        else:
+            print(f"❌ Periskope API Error: Status {resp.status_code}")
+            print(f"📄 Response: {resp.text}")
+            return False
+            
+    except requests.ConnectionError:
+        print(f"❌ Connection failed: MCP server not running at {MCP_SERVER_URL}")
+        print("💡 Start MCP server with: npx -y @periskope/whatsapp-mcp")
+        return False
+        
+    except requests.Timeout:
+        print(f"❌ Request timeout: MCP server not responding at {MCP_SERVER_URL}")
+        return False
+        
+    except requests.RequestException as e:
+        print(f"❌ WhatsApp send failed for {clean_phone}: {e}")
+        return False
+
+# Test function to verify MCP server connection
+def test_mcp_connection():
+    """Test if MCP server is running and accessible"""
+    try:
+        test_url = f"{MCP_SERVER_URL}/health"
+        response = requests.get(test_url, timeout=5)
+        if response.status_code == 200:
+            print("✅ MCP Server is running and accessible")
+            return True
+        else:
+            print(f"❌ MCP Server returned status: {response.status_code}")
+            return False
+    except requests.RequestException as e:
+        print(f"❌ MCP Server not available: {e}")
+        print("💡 Start it with: npx -y @periskope/whatsapp-mcp")
+        return False
+
+# Quick test if run directly
+if __name__ == "__main__":
+    print("🧪 Testing Periskope MCP connection...")
+    if test_mcp_connection():
+        print("✅ MCP connection test passed!")
+    else:
+        print("❌ MCP connection test failed!")

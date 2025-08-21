@@ -12,7 +12,7 @@ const Signin = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
-                navigate("/dashboard");
+                navigate("/profile");
             }
         });
 
@@ -27,7 +27,7 @@ const Signin = () => {
         try {
             await signInWithPopup(auth, googleprovider);
             await addUser();
-            navigate("/dashboard");
+            navigate("/profile");
         } catch (error) {
             console.error("Error signing in with Google:", error.message);
             alert("Error signing in with Google. Please try again.");

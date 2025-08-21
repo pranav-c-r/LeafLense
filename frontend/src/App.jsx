@@ -8,6 +8,7 @@ import Insights from './pages/Insights'
 import Chatbot from './pages/Chatbot'
 import LandingPage from './pages/landing'
 import Signin from './pages/signin'
+import Profile from './pages/profile'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
         <Route path="/crop-yield" element={<Layout><CropYield /></Layout>} />
+        <Route path="/profile" element={<Layout><Profile /></Layout>} />
         <Route path="/disease-detection" element={<Layout><DiseaseDetection /></Layout>} />
         <Route path="/fertilizer" element={<Layout><FertilizerRecommendation /></Layout>} />
         <Route path="/insights" element={<Layout><Insights /></Layout>} />

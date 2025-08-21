@@ -6,3 +6,4 @@ python-dotenv==1.0.1
 SQLAlchemy==2.0.32
 sqlmodel==0.0.21
 apscheduler==3.10.4
+firebase-admin==6.5.0
