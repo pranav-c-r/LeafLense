@@ -1,9 +1,8 @@
 import os
 import google.generativeai as genai
-from dotenv import load_dotenv
-from pathlib import Path
-env_path = Path(__file__).parent.parent / '.env'
-load_dotenv(env_path)
+
+# Environment variables are already loaded globally in main.py
+# So here we just configure the API key
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def create_chat_prompt(farmer, user_question, weather_data, risk_scores):

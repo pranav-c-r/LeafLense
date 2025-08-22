@@ -4,8 +4,13 @@ from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 from pathlib import Path
 env_path = Path('.') / '.env'
-load_dotenv(env_path)  
-API_KEY = os.getenv("OWM_API_KEY")  
+if not env_path.exists():
+    raise FileNotFoundError(f".env file not found at {env_path}")
+load_dotenv(env_path)
+ 
+API_KEY = os.getenv("OWM_API_KEY")
+if not API_KEY:
+    raise EnvironmentError("OWM_API_KEY not found in .env")
 BASE_URL = "https://api.tomorrow.io/v4/weather/realtime"
 
 def get_weather(city):
@@ -15,7 +20,7 @@ def get_weather(city):
             "location": city,
             "apikey": API_KEY
         }
-        response = requests.get(BASE_URL, params=params)
+        response = requests.get(BASE_URL, params=params, timeout=10)
 
         if response.status_code != 200:
             return {"error": f"API error: {response.status_code} {response.text}"}
@@ -28,14 +33,13 @@ def get_weather(city):
             return {"error": "No weather data available"}
 
         weather_info = {
-            "temperature": values.get("temperature"),
-            "humidity": values.get("humidity"),
-            "wind_speed": values.get("windSpeed"),
-            "cloud_cover": values.get("cloudCover"),
-            "rain_intensity": values.get("rainIntensity"),
+            "temperature": values.get("temperature", 25),
+            "humidity": values.get("humidity", 50),
+            "wind_speed": values.get("windSpeed", 0),
+            "cloud_cover": values.get("cloudCover", 0),
+            "rain_intensity": values.get("rainIntensity", 0),
             "city": city
         }
-
         return weather_info
 
     except Exception as e:

@@ -1,3 +1,12 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+httpx==0.27.0
+pydantic==2.8.2
+python-dotenv==1.0.1
+SQLAlchemy==2.0.32
+sqlmodel==0.0.21
+apscheduler==3.10.4
+firebase-admin==6.5.0
 # Core LLM/AI
 langchain
 openai
@@ -5,10 +14,6 @@ google-generativeai
 langchain-google-genai
 langchain-huggingface
 tiktoken
-
-# FastAPI backend
-fastapi
-uvicorn[standard]
 
 # Environment variables
 python-dotenv

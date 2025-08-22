@@ -1,5 +1,19 @@
 # agents/risk_engine.py
 from math import exp
+from dotenv import load_dotenv
+from pathlib import Path
+import os
+
+# Load .env from FarmAgent folder (adjust path if needed)
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(env_path)
+
+# Read thresholds from .env with defaults
+DISEASE_RISK_THRESHOLD = float(os.getenv("DISEASE_RISK_THRESHOLD", 0.6))
+PEST_RISK_THRESHOLD = float(os.getenv("PEST_RISK_THRESHOLD", 0.5))
+HIGH_RAIN_THRESHOLD = float(os.getenv("HIGH_RAIN_THRESHOLD", 8))
+LOW_RAIN_THRESHOLD = float(os.getenv("LOW_RAIN_THRESHOLD", 3))
+HIGH_TEMP_THRESHOLD = float(os.getenv("HIGH_TEMP_THRESHOLD", 28))
 
 def sigmoid(x: float) -> float:
     return 1 / (1 + exp(-x))
@@ -13,9 +27,9 @@ def compute_ior(temp_optimal: bool, had_rain: bool, dry_period: bool, windy: boo
     return round(sigmoid(4 * (score - 0.5)), 3)
 
 def get_irrigation_action(rainfall: float, temperature: float) -> str:
-    if rainfall > 8:
+    if rainfall > HIGH_RAIN_THRESHOLD:
         return "skip"
-    elif rainfall < 3 and temperature > 28:
+    elif rainfall < LOW_RAIN_THRESHOLD and temperature > HIGH_TEMP_THRESHOLD:
         return "irrigate"
     else:
         return "monitor"
@@ -50,9 +64,9 @@ def calculate_risks(weather_data: dict, crop_type: str = "default") -> dict:
     irrigation = get_irrigation_action(total_rainfall, current_temp)
 
     rationale = []
-    if disease_risk > 0.6:
+    if disease_risk > DISEASE_RISK_THRESHOLD:
         rationale.append(f"High disease risk ({disease_risk*100}%) due to {wet_hours} humid hours")
-    if pest_risk > 0.5:
+    if pest_risk > PEST_RISK_THRESHOLD:
         rationale.append(f"Pest risk ({pest_risk*100}%) - favorable conditions detected")
     rationale.append(f"Irrigation: {irrigation.upper()}")
 

@@ -1,4 +1,5 @@
 from .firestore_client import get_firestore_client
+from firebase_admin import firestore
 
 def save_chat_message(farmer_id, user_message, bot_response):
     """Saves chat conversation to Firebase"""

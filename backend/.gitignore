@@ -28,32 +28,54 @@ wheels/
 venv/
 env/
 ENV/
-.env/       # if you have a virtual env folder named .env, otherwise just ignore .env file separately
+.venv/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env
 
 # IDEs and editors
 .vscode/
 .idea/
 *.sublime-project
 *.sublime-workspace
+*.swp
+*.swo
 
 # Logs and databases
 *.log
 *.sqlite3
 *.db
+logs/
 
-# Environment variables
-.env
-
-# Pytest cache
+# Pytest cache / coverage
 .pytest_cache/
 .coverage
 .cache
 
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
 # Migrations (if using Django or similar)
 migrations/
-__pycache__/
 
-# Optional: ignore system files
+# OS / System files
 .DS_Store
 Thumbs.db
+
+# Model files (trained models)
+*.h5
+*.keras
+*.pkl
+*.joblib
+
+# Dataset (do not push)
+test/
+train/
+valid/
+data/
+
+# Firebase credentials
 backend/FarmAgent/serviceAccountKey.json

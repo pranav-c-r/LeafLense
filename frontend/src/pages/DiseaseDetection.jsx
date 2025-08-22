@@ -120,18 +120,6 @@ const DiseaseDetection = () => {
     }
   }
 
-<<<<<<< HEAD
-=======
-  const getSeverityColor = (severity) => {
-    switch (severity) {
-      case 'High': return 'text-red-400 bg-red-500/20 border-red-500/30'
-      case 'Medium': return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30'
-      case 'Low': return 'text-green-400 bg-green-500/20 border-green-500/30'
-      default: return 'text-green-400 bg-green-500/20 border-green-500/30'
-    }
-  }
-
->>>>>>> e5f846d83b1951f70315c9550562bdd3c79bc1b7
   return (
     <div className="p-6 space-y-8">
       {/* Header */}
@@ -145,15 +133,9 @@ const DiseaseDetection = () => {
             <p className="text-gray-400">AI-powered plant health analysis</p>
           </div>
         </div>
-<<<<<<< HEAD
         <div className="flex items-center space-x-2 text-slate-400">
           <Brain className="h-5 w-5 animate-pulse text-red-400" />
           <span className="text-sm">AI Powered</span>
-=======
-        <div className="flex items-center space-x-2 text-gray-400">
-          <Brain className="h-5 w-5 animate-pulse text-green-400" />
-          <span className="text-sm">96.8% Accuracy</span>
->>>>>>> e5f846d83b1951f70315c9550562bdd3c79bc1b7
         </div>
       </div>
 
@@ -277,46 +259,17 @@ const DiseaseDetection = () => {
               <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 backdrop-blur-sm rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-white">Analysis Result</h2>
-<<<<<<< HEAD
                   <CheckCircle className="h-5 w-5 text-green-400" />
-=======
-                  <div className="flex items-center space-x-2">
-                    {result.disease.color === 'green' ? (
-                      <CheckCircle className="h-5 w-5 text-green-400" />
-                    ) : (
-                      <AlertTriangle className="h-5 w-5 text-red-400" />
-                    )}
-                    <span className="text-sm text-gray-300">{result.disease.confidence}% Confidence</span>
-                  </div>
->>>>>>> e5f846d83b1951f70315c9550562bdd3c79bc1b7
                 </div>
 
                 <div className="text-center py-6">
                   <div className="text-3xl font-bold text-white mb-2">
                     {result.disease.name}
                   </div>
-<<<<<<< HEAD
-=======
-                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm border ${getSeverityColor(result.disease.severity)}`}>
-                    {result.disease.severity} Severity
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">{result.disease.confidence}%</div>
-                    <div className="text-sm text-gray-400">Confidence</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-white">&lt; 2s</div>
-                    <div className="text-sm text-gray-400">Analysis Time</div>
-                  </div>
->>>>>>> e5f846d83b1951f70315c9550562bdd3c79bc1b7
                 </div>
               </div>
 
               {/* Detection Details */}
-<<<<<<< HEAD
               {result.detailsDetected?.length > 0 && (
                 <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-6 border border-slate-700/50">
                   <h3 className="text-lg font-bold text-white mb-4 flex items-center">
@@ -334,59 +287,6 @@ const DiseaseDetection = () => {
                   </div>
                 </div>
               )}
-=======
-              <div className="bg-gray-800/40 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                  <Brain className="h-5 w-5 mr-2 text-green-400" />
-                  Detection Details
-                </h3>
-                
-                <div className="space-y-3">
-                  {result.detailsDetected.map((detail, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-700/30 rounded-lg">
-                      <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
-                      <span className="text-gray-300 text-sm">{detail}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Treatment Recommendations */}
-              <div className="bg-gray-800/40 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                  <AlertTriangle className="h-5 w-5 mr-2 text-yellow-400" />
-                  Treatment Plan
-                </h3>
-                
-                <div className="space-y-3">
-                  {result.recommendations.map((rec, index) => (
-                    <div key={index} className="flex items-start space-x-3 p-3 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
-                      <div className="w-6 h-6 bg-yellow-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-yellow-400 text-xs font-bold">{index + 1}</span>
-                      </div>
-                      <span className="text-gray-300 text-sm">{rec}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Prevention */}
-              <div className="bg-gray-800/40 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                  <CheckCircle className="h-5 w-5 mr-2 text-green-400" />
-                  Prevention Tips
-                </h3>
-                
-                <div className="space-y-3">
-                  {result.preventiveMeasures.map((tip, index) => (
-                    <div key={index} className="flex items-start space-x-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                      <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-gray-300 text-sm">{tip}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
->>>>>>> e5f846d83b1951f70315c9550562bdd3c79bc1b7
             </>
           ) : (
             <div className="bg-gray-800/40 backdrop-blur-sm rounded-2xl p-12 border border-gray-700/50 text-center">

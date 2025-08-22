@@ -2,7 +2,9 @@ import os
 import google.generativeai as genai
 from dotenv import load_dotenv
 from pathlib import Path
-env_path = Path(__file__).parent.parent / '.env'
+
+# Go up 3 levels: agents -> app -> FarmAgent -> backend
+env_path = Path(__file__).parents[2] / '.env'
 load_dotenv(env_path)
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))

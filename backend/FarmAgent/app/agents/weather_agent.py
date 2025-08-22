@@ -3,7 +3,7 @@ import aiohttp
 import os, httpx, math
 from dotenv import load_dotenv
 from pathlib import Path
-env_path = Path('.') / '.env'
+env_path = Path(__file__).parent.parent.parent / ".env"
 load_dotenv(env_path)  
 API_KEY = os.getenv("OWM_API_KEY")
 async def analyze_weather(lat: float, lon: float) -> dict:
@@ -22,13 +22,14 @@ async def analyze_weather(lat: float, lon: float) -> dict:
             data = {}
 
     weather = {
-        'current_temp': data.get('current_temp', data.get('avg_temp', 25)),
-        'avg_temp': data.get('avg_temp', 25),
-        'total_rainfall': data.get('total_rainfall', 0),
-        'wet_hours': data.get('wet_hours', 0),
-        'max_wind_speed': data.get('max_wind_speed', 0),
-        'humidity': data.get('humidity', 50),
-        'conditions': data.get('conditions', "Unknown")
+        'current_temp': data.get('main', {}).get('temp', 25),
+        'avg_temp': data.get('main', {}).get('temp', 25),
+        'total_rainfall': data.get('rain', {}).get('1h', 0),
+        'wet_hours': 1 if data.get('rain', {}).get('1h', 0) > 0 else 0,
+        'max_wind_speed': data.get('wind', {}).get('speed', 0),
+        'humidity': data.get('main', {}).get('humidity', 50),
+        'conditions': data.get('weather', [{}])[0].get('description', 'Unknown')
     }
+
 
     return weather
