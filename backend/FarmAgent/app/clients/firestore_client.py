@@ -4,9 +4,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-env_path = Path(__file__).parent.parent.parent / '.env'
-if not env_path.exists():
-    raise FileNotFoundError(f".env file not found at {env_path}")
+env_path = Path(__file__).resolve().parents[2] / ".env"
 load_dotenv(env_path)
 
 def get_firebase_cred_dict():
