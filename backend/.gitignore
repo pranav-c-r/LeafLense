@@ -78,4 +78,5 @@ valid/
 data/
 
 # Firebase credentials
-D:\LeafLense\backend\FarmAgent\serviceAccountkey.json
+backend/FarmAgent/serviceAccountkey.json
+
