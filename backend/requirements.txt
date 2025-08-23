@@ -48,3 +48,10 @@ fastapi[all]
 
 # Optional: typing extensions for compatibility
 typing-extensions
+
+# price prediction model dependencies
+scikit-learn
+pandas
+numpy
+joblib
+
