@@ -4,38 +4,30 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-env_path = Path(__file__).resolve().parents[2] / ".env"
-load_dotenv(env_path)
 
-def get_firebase_cred_dict():
-    required_keys = ["PRIVATE_KEY_ID", "PRIVATE_KEY", "CLIENT_EMAIL", "CLIENT_ID", "CLIENT_X509_CERT_URL"]
-    for key in required_keys:
-        if not os.getenv(key):
-            raise EnvironmentError(f"Missing required env var: {key}")
-
-    return {
-        "type": "service_account",
-        "project_id": "medsense-a43ee",
-        "private_key_id": os.getenv("PRIVATE_KEY_ID"),
-        "private_key": os.getenv("PRIVATE_KEY").replace('\\n', '\n'),
-        "client_email": os.getenv("CLIENT_EMAIL"),
-        "client_id": os.getenv("CLIENT_ID"),
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": os.getenv("CLIENT_X509_CERT_URL"),
-        "universe_domain": "googleapis.com"
-    }
 
 def get_firestore_client():
     if not firebase_admin._apps:
         try:
-            cred_dict = get_firebase_cred_dict()
-            cred = credentials.Certificate(cred_dict)
+            # This will automatically find the GOOGLE_APPLICATION_CREDENTIALS
+            # environment variable and use the JSON file it points to.
+            # No need to build a dictionary manually.
+
+            # Build the absolute path to the json file in the backend folder
+            backend_dir = Path(__file__).resolve().parents[3]
+            cred_path = backend_dir / os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+
+            cred = credentials.Certificate(str(cred_path))
             firebase_admin.initialize_app(cred)
-            print("✅ Firebase Admin initialized")
+            print("✅ Firebase Admin initialized successfully from JSON file.")
+
         except Exception as e:
+            print(f"❌ Firebase initialization failed: {e}")
+            # Re-raise the exception to stop the application if Firebase fails
             raise RuntimeError(f"Firebase initialization failed: {e}")
+
+    return firestore.client()
+
 
 
 def get_all_farmers():

@@ -12,20 +12,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import os
 
-# Load environment variables
-env_path = Path(__file__).resolve().parents[2] / ".env"
-load_dotenv(env_path)
 
-# Initialize Firebase Admin once
-if not firebase_admin._apps:
-    try:
-        service_key_path = Path(__file__).parent.parent / "serviceAccountKey.json"
-        cred = credentials.Certificate(str(service_key_path))
-        firebase_admin.initialize_app(cred)
-        print("✅ Firebase Admin initialized successfully")
-    except Exception as e:
-        print(f"❌ Firebase initialization failed: {e}")
-        raise
 
 # Define router with prefix and tags
 router = APIRouter(prefix="/farmagent", tags=["FarmAgent"])
@@ -171,7 +158,6 @@ async def chat_with_farmer(chat_data: dict):
 
 async def generate_chat_response(farmer, user_question, weather_data, risk_scores):
     import google.generativeai as genai
-    load_dotenv(Path(__file__).parent.parent / ".env")
     prompt = f"""
 You are FarmAI, an agricultural expert assistant for {farmer.get('name', 'the farmer')}.
 

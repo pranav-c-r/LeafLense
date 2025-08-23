@@ -3,10 +3,6 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Go up 3 levels: agents -> app -> FarmAgent -> backend
-env_path = Path(__file__).parents[2] / '.env'
-load_dotenv(env_path)
-
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 async def generate_advice(farmer: dict, weather: dict, risks: dict) -> str:
