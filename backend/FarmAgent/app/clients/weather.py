@@ -3,10 +3,6 @@ import os, httpx, math
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 from pathlib import Path
-env_path = Path('.') / '.env'
-if not env_path.exists():
-    raise FileNotFoundError(f".env file not found at {env_path}")
-load_dotenv(env_path)
  
 API_KEY = os.getenv("OWM_API_KEY")
 if not API_KEY:

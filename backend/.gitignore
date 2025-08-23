@@ -78,5 +78,5 @@ valid/
 data/
 
 # Firebase credentials
-backend/FarmAgent/serviceAccountkey.json
+backend/serviceAccountKey.json
 

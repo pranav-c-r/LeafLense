@@ -4,7 +4,18 @@ import uvicorn
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from one .env at backend root
+# --- ADD THIS BLOCK ---
+# Load environment variables from the .env file in the same directory
+load_dotenv() 
+# Add a debug print to confirm it's working
+print(f"DEBUG from main.py: PRIVATE_KEY has been loaded. Value starts with: {str(os.getenv('PRIVATE_KEY'))[:25]}...")
+# --- END BLOCK ---
+from FarmAgent.routes import router as farm_router
+from Plant_Disease.routes import router as plant_router
+from FertilizerSuggestor.routes import router as fert_router
+from Yield_Prediction.routes import router as yield_router
+
+# Load environment variables (from .env inside backend/)
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
 # Create FastAPI app
@@ -14,28 +25,29 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS setup (allow frontend to call backend)
+# CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # change to frontend URL in production
+    allow_origins=["*"],  # ⚠️ Replace with frontend domain in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Import routers from submodules
-from FarmAgent.routes import router as farm_router
-from Plant_Disease.routes import router as plant_router
-# later: from AnotherFeature.routes import router as another_router
-
-# Include routers with prefixes
+# Include routers
 app.include_router(farm_router, prefix="/farm", tags=["FarmAgent"])
 app.include_router(plant_router, prefix="/plant", tags=["Plant_Disease"])
-# app.include_router(another_router, prefix="/other", tags=["Other"])
+app.include_router(fert_router, prefix="/fertilizer", tags=["FertilizerSuggestor"])
+app.include_router(yield_router, prefix="/yield", tags=["YieldPredictor"])
 
 @app.get("/")
 def root():
     return {"message": "Unified Backend running successfully"}
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=int(os.getenv("PORT", 8000)), reload=True)
+    uvicorn.run(
+        "main:app",   # ✅ correct for backend/main.py
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8000)),
+        reload=True
+    )

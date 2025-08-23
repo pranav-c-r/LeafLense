@@ -3,8 +3,6 @@ import aiohttp
 import os, httpx, math
 from dotenv import load_dotenv
 from pathlib import Path
-env_path = Path(__file__).parent.parent.parent / ".env"
-load_dotenv(env_path)  
 API_KEY = os.getenv("OWM_API_KEY")
 async def analyze_weather(lat: float, lon: float) -> dict:
     """
