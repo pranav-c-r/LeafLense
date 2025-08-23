@@ -71,7 +71,6 @@ try:
         model_type = "saved_model"
     except Exception as e1:
         print(f"\n⚠️ tf.saved_model.load failed: {e1}")
-        
         # Second try: TFSMLayer
         try:
             import keras
@@ -80,33 +79,45 @@ try:
             model_type = "tfsm_layer"
         except Exception as e2:
             print(f"\n⚠️ TFSMLayer also failed: {e2}")
-            
-            # Fallback: Create a mock model for development/testing
-            print("\n🔄 Creating mock model for development/testing...")
-            
-            # Create a simple mock model that returns realistic predictions
-            class MockModel:
-                def __init__(self):
-                    self.num_classes = len(class_names)
-                    print(f"📊 Mock model created with {self.num_classes} classes")
-                
-                def predict(self, input_arr):
-                    # Return random but realistic predictions
-                    np.random.seed(42)  # For consistent results during development
-                    predictions = np.random.dirichlet(np.ones(self.num_classes) * 0.1, size=1)
-                    # Boost one class to simulate a detection
-                    max_idx = np.random.randint(0, self.num_classes)
-                    predictions[0][max_idx] *= 5  # Make one class more likely
-                    predictions = predictions / np.sum(predictions, axis=1, keepdims=True)  # Renormalize
-                    print(f"📊 Mock prediction generated, max confidence: {np.max(predictions):.3f}")
-                    return predictions
-            
-            model = MockModel()
-            model_type = "mock"
-            print("\n✅ Mock model created successfully for testing")
-            print("⚠️ Note: This is a temporary mock model for development.")
-            print("📝 To use the real model, please retrain it with TensorFlow 2.17+ or provide a compatible .keras file")
-            
+            # Third try: tf.keras.models.load_model for .h5 or .keras
+            try:
+                keras_model_path = os.path.join(BASE_DIR, "trained_model.h5")
+                if os.path.exists(keras_model_path):
+                    model = tf.keras.models.load_model(keras_model_path)
+                    print("\n✅ Model loaded successfully using tf.keras.models.load_model (.h5)")
+                    model_type = "keras_h5"
+                else:
+                    keras_model_path = os.path.join(BASE_DIR, "trained_model.keras")
+                    if os.path.exists(keras_model_path):
+                        model = tf.keras.models.load_model(keras_model_path)
+                        print("\n✅ Model loaded successfully using tf.keras.models.load_model (.keras)")
+                        model_type = "keras_keras"
+                    else:
+                        raise FileNotFoundError("No .h5 or .keras model file found.")
+            except Exception as e3:
+                print(f"\n⚠️ tf.keras.models.load_model also failed: {e3}")
+                # Fallback: Create a mock model for development/testing
+                print("\n🔄 Creating mock model for development/testing...")
+                # Create a simple mock model that returns realistic predictions
+                class MockModel:
+                    def __init__(self):
+                        self.num_classes = len(class_names)
+                        print(f"📊 Mock model created with {self.num_classes} classes")
+                    def predict(self, input_arr):
+                        # Return random but realistic predictions
+                        np.random.seed(42)  # For consistent results during development
+                        predictions = np.random.dirichlet(np.ones(self.num_classes) * 0.1, size=1)
+                        # Boost one class to simulate a detection
+                        max_idx = np.random.randint(0, self.num_classes)
+                        predictions[0][max_idx] *= 5  # Make one class more likely
+                        predictions = predictions / np.sum(predictions, axis=1, keepdims=True)  # Renormalize
+                        print(f"📊 Mock prediction generated, max confidence: {np.max(predictions):.3f}")
+                        return predictions
+                model = MockModel()
+                model_type = "mock"
+                print("\n✅ Mock model created successfully for testing")
+                print("⚠️ Note: This is a temporary mock model for development.")
+                print("📝 To use the real model, please retrain it with TensorFlow 2.17+ or provide a compatible .keras file")
 except Exception as e:
     print(f"\n❌ Unexpected error during model loading: {e}")
     model = None
@@ -218,19 +229,14 @@ async def predict(file: UploadFile = File(...)):
         
         print(f"📊 Predicted class index: {result_index}")
         print(f"📊 Confidence: {confidence:.4f}")
-
-        if confidence < 0.5:  # Lower threshold for testing
-            result = "Unknown Disease (Low confidence)"
-            disease_advice = "The confidence level is too low to make a reliable prediction. Please ensure the image is clear, well-lit, and shows visible disease symptoms on the plant leaf."
+        result = class_names[result_index]
+        # Generate basic advice based on disease type
+        if "healthy" in result.lower():
+            disease_advice = "Good news! Your plant appears to be healthy. Continue with regular care and monitoring."
+        elif "unknown" in result.lower():
+            disease_advice = "Unable to identify the specific disease. Please consult with a local agricultural expert for proper diagnosis."
         else:
-            result = class_names[result_index]
-            # Generate basic advice based on disease type
-            if "healthy" in result.lower():
-                disease_advice = "Good news! Your plant appears to be healthy. Continue with regular care and monitoring."
-            elif "unknown" in result.lower():
-                disease_advice = "Unable to identify the specific disease. Please consult with a local agricultural expert for proper diagnosis."
-            else:
-                disease_advice = f"Disease detected: {result}. Please consult with a local agricultural expert for specific treatment recommendations."
+            disease_advice = f"Disease detected: {result}. Please consult with a local agricultural expert for specific treatment recommendations."
 
         # AI advice (temporarily using simple rule-based advice)
         ai_response = disease_advice

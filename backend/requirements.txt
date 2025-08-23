@@ -7,51 +7,20 @@ SQLAlchemy==2.0.32
 sqlmodel==0.0.21
 apscheduler==3.10.4
 firebase-admin==6.5.0
-# Core LLM/AI
-langchain
-openai
-google-generativeai
-langchain-google-genai
-langchain-huggingface
-tiktoken
-
-# Environment variables
-python-dotenv
-
-# Pydantic for models
-pydantic
-
-# HTTP requests
-requests
-
-# Google APIs
-google-api-python-client
-google-auth
-google-auth-oauthlib
-google-auth-httplib2
-
-# Document processing
-PyPDF2
-pdfplumber
-python-docx
-
-# OCR (for image-to-text)
-pytesseract
-Pillow
-
-# Web scraping (if needed for fetching content)
-beautifulsoup4
-html2text
-
-# CORS (if your frontend needs to call backend)
-fastapi[all]
-
-# Optional: typing extensions for compatibility
-typing-extensions
-
-# price prediction model dependencies
-scikit-learn
-pandas
-numpy
-joblib
+requests==2.32.4
+aiohttp==3.8.4
+pandas==2.3.2
+numpy==2.3.2
+scikit-learn==1.7.1
+joblib==1.5.1
+python-multipart==0.0.9
+PyPDF2==3.0.1
+python-docx==1.1.2
+Pillow==11.3.0
+beautifulsoup4==4.13.4
+# NOTE: LLM/advanced packages (langchain, tiktoken, tokenizers, google-generativeai, etc.)
+# were intentionally removed from this file because they pull Rust-based wheels or
+# large native extensions that fail to build in Render's read-only build environment.
+# If you need those features, install them in a separate build step or use a
+# custom Docker image that provides the Rust toolchain and build permissions.
 
