@@ -35,10 +35,13 @@ scheduler = AsyncIOScheduler()
 
 @router.on_event("startup")
 async def startup_event():
-    trigger = CronTrigger(hour=6, minute=0, timezone="Asia/Kolkata")
-    scheduler.add_job(run_daily_pipeline, trigger)
-    scheduler.start()
-    print("✅ FarmAgent scheduler started - Daily runs at 6:00 AM IST")
+    if not scheduler.running:
+        trigger = CronTrigger(hour=6, minute=0, timezone="Asia/Kolkata")
+        scheduler.add_job(run_daily_pipeline, trigger)
+        scheduler.start()
+        print("✅ FarmAgent scheduler started - Daily runs at 6:00 AM IST")
+    else:
+        print("⚠️ FarmAgent scheduler already running")
 
 @router.get("/")
 async def root():

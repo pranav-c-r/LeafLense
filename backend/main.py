@@ -5,8 +5,9 @@ import os
 from dotenv import load_dotenv
 from FarmAgent.routes import router as farm_router
 from Plant_Disease.routes import router as plant_router
+from FertilizerSuggestor.routes import router as fert_router
 
-# Load environment variables from .env in backend root
+# Load environment variables (from .env inside backend/)
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
 # Create FastAPI app
@@ -16,19 +17,19 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS setup (allow frontend to call backend)
+# CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ⚠️ In production, replace with frontend domain
+    allow_origins=["*"],  # ⚠️ Replace with frontend domain in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routers with prefixes
+# Include routers
 app.include_router(farm_router, prefix="/farm", tags=["FarmAgent"])
 app.include_router(plant_router, prefix="/plant", tags=["Plant_Disease"])
-# app.include_router(another_router, prefix="/other", tags=["Other"])
+app.include_router(fert_router, prefix="/fertilizer", tags=["FertilizerSuggestor"])
 
 @app.get("/")
 def root():
@@ -36,7 +37,7 @@ def root():
 
 if __name__ == "__main__":
     uvicorn.run(
-        "backend.main:app",
+        "main:app",   # ✅ correct for backend/main.py
         host="0.0.0.0",
         port=int(os.getenv("PORT", 8000)),
         reload=True
