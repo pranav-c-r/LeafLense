@@ -4,7 +4,9 @@ import pandas as pd
 from pydantic import BaseModel
 
 # Load model at startup
-model = joblib.load("crop_price_model.pkl")
+import os
+model_path = os.path.join(os.path.dirname(__file__), "crop_price_model_2.pkl")
+model = joblib.load(model_path)
 
 app = FastAPI()
 
