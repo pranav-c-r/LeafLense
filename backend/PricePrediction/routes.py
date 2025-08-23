@@ -1,20 +1,27 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 import joblib
 import pandas as pd
 from pydantic import BaseModel
 import os
 
-# Create router for price prediction
-router = APIRouter()
+# ✅ Router for Price Prediction
+router = APIRouter(prefix="/price", tags=["Price Prediction"])
 
-# Load model at startup
+# ✅ Path to trained model
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "models", "crop_price_model_2.pkl")
+
+# ✅ Load model with fallback
 try:
-    model_path = os.path.join(os.path.dirname(__file__), "crop_price_model_2.pkl")
-    model = joblib.load(model_path)
-    print("✅ Price prediction model loaded successfully")
+    print(f"\n🔄 Loading price prediction model from: {MODEL_PATH}")
+    model = joblib.load(MODEL_PATH)
+    print("\n✅ Price prediction model loaded successfully")
+    model_loaded = True
 except Exception as e:
-    print(f"❌ Failed to load price prediction model: {e}")
+    print(f"\n❌ Failed to load price prediction model: {e}")
     model = None
+    model_loaded = False
 
 # Input schema for request body
 class CropPriceData(BaseModel):
