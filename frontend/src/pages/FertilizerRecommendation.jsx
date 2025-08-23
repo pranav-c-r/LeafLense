@@ -15,6 +15,7 @@ const FertilizerRecommendation = () => {
 
   const [recommendation, setRecommendation] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   const crops = ['Ground Nuts', 'Cotton', 'Sugarcane', 'Wheat', 'Tobacco', 'Barley', 'Millets',
     'Pulses', 'Oil seeds', 'Maize', 'Paddy']
@@ -27,41 +28,61 @@ const FertilizerRecommendation = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)   
-    const res = await fetch("http://127.0.0.1:8000/fertilizer/predict", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
-    });
-    const data = await res.json();
-    console.log(data.prediction);
-    setLoading(false);
-    // Simulate API call
-    // setTimeout(() => {
-    //   const mockRecommendation = {
-    //     npkRatio: '20-10-10',
-    //     applicationRate: '150 kg/ha',
-    //     totalCost: '$120',
-    //     nutrients: {
-    //       nitrogen: { current: formData.nitrogen, recommended: parseInt(formData.nitrogen) + 30, unit: 'kg/ha' },
-    //       phosphorus: { current: formData.phosphorus, recommended: parseInt(formData.phosphorus) + 15, unit: 'kg/ha' },
-    //       potassium: { current: formData.potassium, recommended: parseInt(formData.potassium) + 10, unit: 'kg/ha' }
-    //     },
-    //     products: [
-    //       { name: 'NPK Complex 20-10-10', amount: '100 kg', cost: '$80', timing: 'Base application' },
-    //       { name: 'Urea (46-0-0)', amount: '50 kg', cost: '$25', timing: 'Top dressing' },
-    //       { name: 'Organic Compost', amount: '200 kg', cost: '$15', timing: 'Pre-planting' }
-    //     ],
-    //     timeline: [
-    //       { stage: 'Pre-planting', action: 'Apply organic matter and phosphorus', timing: '2 weeks before planting' },
-    //       { stage: 'Planting', action: 'Apply base NPK fertilizer', timing: 'At planting time' },
-    //       { stage: 'Vegetative', action: 'First nitrogen top-dressing', timing: '4-6 weeks after planting' },
-    //       { stage: 'Flowering', action: 'Second nitrogen application', timing: '8-10 weeks after planting' }
-    //     ]
-    //   }
-    //   setRecommendation(mockRecommendation)
-    //   setLoading(false)
-    // }, 2000)
+    setError(null)
+    setLoading(true)
+    try {
+      const res = await fetch("http://127.0.0.1:8000/fertilizer/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      })
+
+      if (!res.ok) throw new Error(`API error ${res.status}`)
+      const data = await res.json()
+
+      // Backend returns { prediction: ... }
+      const pred = data.prediction ?? data
+
+      // If prediction is a simple string, wrap into a minimal object so UI can render
+      if (typeof pred === 'string' || typeof pred === 'number') {
+        setRecommendation({
+          npkRatio: String(pred),
+          applicationRate: '—',
+          totalCost: '—',
+          nutrients: {
+            nitrogen: { current: Number(formData.Nitrogen) || 0, recommended: (Number(formData.Nitrogen) || 0) + 30, unit: 'kg/ha' },
+            phosphorus: { current: Number(formData.Phosphorus) || 0, recommended: (Number(formData.Phosphorus) || 0) + 15, unit: 'kg/ha' },
+            potassium: { current: Number(formData.Potassium) || 0, recommended: (Number(formData.Potassium) || 0) + 10, unit: 'kg/ha' }
+          },
+          products: []
+        })
+      } else if (typeof pred === 'object') {
+        // If it's an object matching expected structure, use it directly
+        setRecommendation(pred)
+      } else {
+        setRecommendation({ npkRatio: String(pred) })
+      }
+    } catch (err) {
+      setError(err.message || 'Unknown error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCopy = async () => {
+    if (!recommendation) return
+    const text = recommendation.npkRatio ?? JSON.stringify(recommendation)
+    try {
+      await navigator.clipboard.writeText(String(text))
+    } catch (e) {
+      // ignore clipboard failures silently
+    }
+  }
+
+  const handleReset = () => {
+    setFormData({ Crop_Type: '', Soil_Type: '', Nitrogen: '', Phosphorus: '', Potassium: '', Temperature: '', Humidity: '', Moisture: '' })
+    setRecommendation(null)
+    setError(null)
   }
 
   return (
@@ -79,7 +100,7 @@ const FertilizerRecommendation = () => {
         </div>
         <div className="flex items-center space-x-2 text-gray-400">
           <Brain className="h-5 w-5 animate-pulse text-green-400" />
-          <span className="text-sm">500+ Crop Types</span>
+          <span className="text-sm">Accurate NPK levels</span>
         </div>
       </div>
 
@@ -249,13 +270,20 @@ const FertilizerRecommendation = () => {
 
         {/* Results */}
         <div className="space-y-6">
+          {error && (
+            <div className="bg-red-600/20 border border-red-600/30 text-red-300 rounded-lg p-3">{error}</div>
+          )}
           {recommendation ? (
             <>
               {/* Main Recommendation */}
               <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 backdrop-blur-sm rounded-2xl p-6 border border-green-500/30">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-white">NPK Recommendation</h2>
-                  <TrendingUp className="h-5 w-5 text-green-400" />
+                  <div className="flex items-center space-x-2">
+                    <button onClick={handleCopy} className="px-3 py-1 bg-green-600/30 text-sm rounded-md text-white">Copy</button>
+                    <button onClick={handleReset} className="px-3 py-1 bg-gray-700/40 text-sm rounded-md text-white">Reset</button>
+                    <TrendingUp className="h-5 w-5 text-green-400" />
+                  </div>
                 </div>
 
                 <div className="text-center py-6">
