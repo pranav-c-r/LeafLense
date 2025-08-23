@@ -73,7 +73,7 @@ const DiseaseDetection = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:8000/', 
+        'http://localhost:8000/plant/disease/predict', 
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )

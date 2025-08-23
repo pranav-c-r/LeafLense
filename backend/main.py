@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 from FarmAgent.routes import router as farm_router
 from Plant_Disease.routes import router as plant_router
-from FertilizerSuggestor.routes import router as fert_router
 
 # Load environment variables (from .env inside backend/)
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
@@ -29,7 +28,6 @@ app.add_middleware(
 # Include routers
 app.include_router(farm_router, prefix="/farm", tags=["FarmAgent"])
 app.include_router(plant_router, prefix="/plant", tags=["Plant_Disease"])
-app.include_router(fert_router, prefix="/fertilizer", tags=["FertilizerSuggestor"])
 
 @app.get("/")
 def root():
