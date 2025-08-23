@@ -80,7 +80,7 @@ const LandingPage = () => {
     {
       name: 'Sarah Johnson',
       role: 'Corn Farmer, Iowa',
-      content: 'AI Agri-Advisor increased my yield by 23% last season. The disease detection feature saved my entire crop from blight.',
+      content: 'LeafLense increased my yield by 23% last season. The disease detection feature saved my entire crop from blight.',
       rating: 5
     },
     {
@@ -116,7 +116,7 @@ const LandingPage = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
                 <Leaf className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-white">AI Agri-Advisor</span>
+              <span className="text-2xl font-bold text-white">LeafLense</span>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
@@ -268,7 +268,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-                Why Choose AI Agri-Advisor?
+                Why Choose LeafLense?
               </h2>
               <p className="text-xl text-slate-300 mb-8 leading-relaxed">
                 Join thousands of farmers who have transformed their operations with our 
@@ -396,11 +396,11 @@ const LandingPage = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
                 <Leaf className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-white">AI Agri-Advisor</span>
+              <span className="text-xl font-bold text-white">LeafLense</span>
             </div>
             
             <div className="text-slate-400 text-sm">
-              © 2025 AI Agri-Advisor. All rights reserved.
+              © 2025 LeafLense. All rights reserved.
             </div>
           </div>
         </div>
