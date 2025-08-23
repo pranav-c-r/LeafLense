@@ -3,25 +3,23 @@ import { Beaker, Zap, Brain, AlertCircle, TrendingUp } from 'lucide-react'
 
 const FertilizerRecommendation = () => {
   const [formData, setFormData] = useState({
-    cropType: '',
-    soilType: '',
-    nitrogen: '',
-    phosphorus: '',
-    potassium: '',
-    soilPh: '',
-    organic: ''
+    Crop_Type: '',
+    Soil_Type: '',
+    Nitrogen: '',
+    Phosphorus: '',
+    Potassium: '',
+    Temperature: '',
+    Humidity: '',
+    Moisture: ''
   })
-  
+
   const [recommendation, setRecommendation] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const crops = [
-    'Wheat', 'Rice', 'Maize', 'Barley', 'Soybeans', 'Cotton', 'Potato', 'Tomato', 'Sugarcane'
-  ]
+  const crops = ['Ground Nuts', 'Cotton', 'Sugarcane', 'Wheat', 'Tobacco', 'Barley', 'Millets',
+    'Pulses', 'Oil seeds', 'Maize', 'Paddy']
 
-  const soilTypes = [
-    'Clay', 'Sandy', 'Loamy', 'Silt', 'Peaty', 'Chalky'
-  ]
+  const soilTypes = ['Red', 'Black', 'Sandy', 'Loamy', 'Clayey']
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -29,34 +27,41 @@ const FertilizerRecommendation = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    
+    setLoading(true)   
+    const res = await fetch("http://127.0.0.1:8000/fertilizer/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    });
+    const data = await res.json();
+    console.log(data.prediction);
+    setLoading(false);
     // Simulate API call
-    setTimeout(() => {
-      const mockRecommendation = {
-        npkRatio: '20-10-10',
-        applicationRate: '150 kg/ha',
-        totalCost: '$120',
-        nutrients: {
-          nitrogen: { current: formData.nitrogen, recommended: parseInt(formData.nitrogen) + 30, unit: 'kg/ha' },
-          phosphorus: { current: formData.phosphorus, recommended: parseInt(formData.phosphorus) + 15, unit: 'kg/ha' },
-          potassium: { current: formData.potassium, recommended: parseInt(formData.potassium) + 10, unit: 'kg/ha' }
-        },
-        products: [
-          { name: 'NPK Complex 20-10-10', amount: '100 kg', cost: '$80', timing: 'Base application' },
-          { name: 'Urea (46-0-0)', amount: '50 kg', cost: '$25', timing: 'Top dressing' },
-          { name: 'Organic Compost', amount: '200 kg', cost: '$15', timing: 'Pre-planting' }
-        ],
-        timeline: [
-          { stage: 'Pre-planting', action: 'Apply organic matter and phosphorus', timing: '2 weeks before planting' },
-          { stage: 'Planting', action: 'Apply base NPK fertilizer', timing: 'At planting time' },
-          { stage: 'Vegetative', action: 'First nitrogen top-dressing', timing: '4-6 weeks after planting' },
-          { stage: 'Flowering', action: 'Second nitrogen application', timing: '8-10 weeks after planting' }
-        ]
-      }
-      setRecommendation(mockRecommendation)
-      setLoading(false)
-    }, 2000)
+    // setTimeout(() => {
+    //   const mockRecommendation = {
+    //     npkRatio: '20-10-10',
+    //     applicationRate: '150 kg/ha',
+    //     totalCost: '$120',
+    //     nutrients: {
+    //       nitrogen: { current: formData.nitrogen, recommended: parseInt(formData.nitrogen) + 30, unit: 'kg/ha' },
+    //       phosphorus: { current: formData.phosphorus, recommended: parseInt(formData.phosphorus) + 15, unit: 'kg/ha' },
+    //       potassium: { current: formData.potassium, recommended: parseInt(formData.potassium) + 10, unit: 'kg/ha' }
+    //     },
+    //     products: [
+    //       { name: 'NPK Complex 20-10-10', amount: '100 kg', cost: '$80', timing: 'Base application' },
+    //       { name: 'Urea (46-0-0)', amount: '50 kg', cost: '$25', timing: 'Top dressing' },
+    //       { name: 'Organic Compost', amount: '200 kg', cost: '$15', timing: 'Pre-planting' }
+    //     ],
+    //     timeline: [
+    //       { stage: 'Pre-planting', action: 'Apply organic matter and phosphorus', timing: '2 weeks before planting' },
+    //       { stage: 'Planting', action: 'Apply base NPK fertilizer', timing: 'At planting time' },
+    //       { stage: 'Vegetative', action: 'First nitrogen top-dressing', timing: '4-6 weeks after planting' },
+    //       { stage: 'Flowering', action: 'Second nitrogen application', timing: '8-10 weeks after planting' }
+    //     ]
+    //   }
+    //   setRecommendation(mockRecommendation)
+    //   setLoading(false)
+    // }, 2000)
   }
 
   return (
@@ -83,7 +88,7 @@ const FertilizerRecommendation = () => {
         <div className="space-y-6">
           <div className="bg-gray-800/40 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
             <h2 className="text-xl font-bold text-white mb-6">Soil Analysis Input</h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -91,8 +96,8 @@ const FertilizerRecommendation = () => {
                     Crop Type
                   </label>
                   <select
-                    name="cropType"
-                    value={formData.cropType}
+                    name="Crop_Type"
+                    value={formData.Crop_Type}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white input-focus"
                     required
@@ -103,14 +108,14 @@ const FertilizerRecommendation = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Soil Type
                   </label>
                   <select
-                    name="soilType"
-                    value={formData.soilType}
+                    name="Soil_Type"
+                    value={formData.Soil_Type}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white input-focus"
                     required
@@ -124,7 +129,7 @@ const FertilizerRecommendation = () => {
               </div>
 
               <h3 className="text-lg font-semibold text-white mt-6 mb-4">Current Nutrient Levels (kg/ha)</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -132,38 +137,38 @@ const FertilizerRecommendation = () => {
                   </label>
                   <input
                     type="number"
-                    name="nitrogen"
-                    value={formData.nitrogen}
+                    name="Nitrogen"
+                    value={formData.Nitrogen}
                     onChange={handleInputChange}
                     placeholder="120"
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white input-focus"
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Phosphorus (P)
                   </label>
                   <input
                     type="number"
-                    name="phosphorus"
-                    value={formData.phosphorus}
+                    name="Phosphorus"
+                    value={formData.Phosphorus}
                     onChange={handleInputChange}
                     placeholder="60"
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white input-focus"
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Potassium (K)
                   </label>
                   <input
                     type="number"
-                    name="potassium"
-                    value={formData.potassium}
+                    name="Potassium"
+                    value={formData.Potassium}
                     onChange={handleInputChange}
                     placeholder="40"
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white input-focus"
@@ -172,34 +177,49 @@ const FertilizerRecommendation = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Soil pH
+                    Temperature (°C)
                   </label>
                   <input
                     type="number"
                     step="0.1"
-                    name="soilPh"
-                    value={formData.soilPh}
+                    name="Temperature"
+                    value={formData.Temperature}
                     onChange={handleInputChange}
                     placeholder="6.5"
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white input-focus"
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Organic Matter (%)
+                    Humidity (%)
                   </label>
                   <input
                     type="number"
                     step="0.1"
-                    name="organic"
-                    value={formData.organic}
+                    name="Humidity"
+                    value={formData.Humidity}
                     onChange={handleInputChange}
                     placeholder="2.5"
+                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white input-focus"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Moisture
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    name="Moisture"
+                    value={formData.Moisture}
+                    onChange={handleInputChange}
+                    placeholder="6.5"
                     className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-white input-focus"
                     required
                   />
@@ -237,7 +257,7 @@ const FertilizerRecommendation = () => {
                   <h2 className="text-xl font-bold text-white">NPK Recommendation</h2>
                   <TrendingUp className="h-5 w-5 text-green-400" />
                 </div>
-                
+
                 <div className="text-center py-6">
                   <div className="text-4xl font-bold text-gradient mb-2">
                     {recommendation.npkRatio}
@@ -259,7 +279,7 @@ const FertilizerRecommendation = () => {
               {/* Nutrient Analysis */}
               <div className="bg-gray-800/40 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
                 <h3 className="text-lg font-bold text-white mb-4">Nutrient Analysis</h3>
-                
+
                 <div className="space-y-4">
                   {Object.entries(recommendation.nutrients).map(([nutrient, data]) => (
                     <div key={nutrient} className="p-4 bg-gray-700/30 rounded-lg">
@@ -289,7 +309,7 @@ const FertilizerRecommendation = () => {
               {/* Product Recommendations */}
               <div className="bg-gray-800/40 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
                 <h3 className="text-lg font-bold text-white mb-4">Recommended Products</h3>
-                
+
                 <div className="space-y-3">
                   {recommendation.products.map((product, index) => (
                     <div key={index} className="flex items-center justify-between p-4 bg-gray-700/30 rounded-lg">
