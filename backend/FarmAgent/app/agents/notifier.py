@@ -4,10 +4,6 @@ from dotenv import load_dotenv
 import json
 import subprocess
 import shutil
-# its working but lot of time
-env_path = Path(__file__).resolve().parents[2] / ".env"
-load_dotenv(env_path)
-
 
 PERISKOPE_API_KEY = os.getenv("PERISKOPE_API_KEY")
 PERISKOPE_PHONE_ID = os.getenv("PERISKOPE_PHONE_ID", "")
@@ -25,7 +21,7 @@ else:
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            universal_newlines=True
         )
         print("✅ MCP process started successfully")
     except Exception as e:
@@ -80,4 +76,8 @@ def send_whatsapp_alert(phone_number: str, message: str) -> bool:
 
     except Exception as e:
         print(f"❌ WhatsApp send failed for {clean_phone}: {e}")
+        # Print MCP process stderr for debugging
+        if MCP_PROC and MCP_PROC.stderr:
+            error_output = MCP_PROC.stderr.read()
+            print(f"MCP STDERR: {error_output}")
         return False

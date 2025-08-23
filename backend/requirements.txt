@@ -18,11 +18,18 @@ tiktoken
 # Environment variables
 python-dotenv
 
+apscheduler
+dotenv
+tensorflow
+zod
+
+
 # Pydantic for models
 pydantic
 
 # HTTP requests
 requests
+aiohttp
 
 # Google APIs
 google-api-python-client
@@ -48,3 +55,10 @@ fastapi[all]
 
 # Optional: typing extensions for compatibility
 typing-extensions
+
+# price prediction model dependencies
+scikit-learn
+pandas
+numpy
+joblib
+

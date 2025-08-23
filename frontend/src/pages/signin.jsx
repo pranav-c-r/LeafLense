@@ -1,4 +1,4 @@
-import { auth, database, googleprovider } from '../config/firebase';
+import { auth, database, googleProvider } from '../config/firebase';
 import { useState, useEffect } from "react";
 import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
