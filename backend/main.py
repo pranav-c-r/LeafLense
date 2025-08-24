@@ -13,7 +13,11 @@ print(f"DEBUG from main.py: PRIVATE_KEY has been loaded. Value starts with: {str
 from FarmAgent.routes import router as farm_router
 from Plant_Disease.routes import router as plant_router
 from FertilizerSuggestor.routes import router as fert_router
+<<<<<<< Updated upstream
 from Yield_Prediction.routes import router as yield_router
+=======
+from PricePrediction.routes import router as price_router
+>>>>>>> Stashed changes
 
 # Load environment variables (from .env inside backend/)
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
@@ -38,7 +42,11 @@ app.add_middleware(
 app.include_router(farm_router, prefix="/farm", tags=["FarmAgent"])
 app.include_router(plant_router, prefix="/plant", tags=["Plant_Disease"])
 app.include_router(fert_router, prefix="/fertilizer", tags=["FertilizerSuggestor"])
+<<<<<<< Updated upstream
 app.include_router(yield_router, prefix="/yield", tags=["YieldPredictor"])
+=======
+app.include_router(price_router, prefix="/price", tags=["PricePrediction"])
+>>>>>>> Stashed changes
 
 @app.get("/")
 def root():

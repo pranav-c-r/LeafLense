@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import CropYield from './pages/CropYield'
 import DiseaseDetection from './pages/DiseaseDetection'
 import FertilizerRecommendation from './pages/FertilizerRecommendation'
+import PricePrediction from './pages/PricePrediction'
 import Insights from './pages/Insights'
 import Chatbot from './pages/Chatbot'
 import LandingPage from './pages/landing'
@@ -18,6 +19,7 @@ function App() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
         <Route path="/crop-yield" element={<Layout><CropYield /></Layout>} />
+        <Route path="/price-prediction" element={<Layout><PricePrediction /></Layout>} />
         <Route path="/profile" element={<Layout><Profile /></Layout>} />
         <Route path="/disease-detection" element={<Layout><DiseaseDetection /></Layout>} />
         <Route path="/fertilizer" element={<Layout><FertilizerRecommendation /></Layout>} />
